@@ -1,4 +1,7 @@
+"use client";
+
 import { ArrowUpRight, Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 const earners = [
   {
@@ -53,35 +56,81 @@ const earners = [
   },
 ];
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
+
 export default function TopEarners() {
   return (
-    <section className="bg-black py-24 text-white">
-      <div className="mx-auto w-full max-w-[1700px] px-6">
+    <section className="relative py-24 text-white overflow-hidden" id="top-workers">
+      {/* Background Watermark */}
+      <div className="absolute inset-0 flex items-start justify-center pointer-events-none select-none overflow-hidden pt-20">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 0.4, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+          className="text-[15vw] md:text-[20vw] font-black font-inter text-zinc-900/40 tracking-tighter whitespace-nowrap"
+        >
+          LEADERBOARD
+        </motion.div>
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="no-scrollbar overflow-x-auto">
           <div className="min-w-[1000px]">
              {/* Header */}
             <div className="mb-12 flex items-end justify-between">
-              <div>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
                 <div className="mb-4 inline-flex items-center border-2 border-yellow-500/20 px-4 py-5 text-[14px] font-bold uppercase tracking-widest text-yellow-500">
                   Leaderboard
                 </div>
-                <h2 className="font-primary text-5xl font-inter uppercase tracking-tighter sm:text-6xl">
+                <h2 className="font-primary text-5xl font-inter uppercase tracking-tighter sm:text-6xl font-bold">
                   Top Earners <br />
-                  <span className="text-zinc-600 outline-text">This Month</span>
+                  <span className="text-transparent" style={{ WebkitTextStroke: "2px #bfff00", color: "transparent" }}>This Month</span>
                 </h2>
-              </div>
+              </motion.div>
               
-              <button className="group flex items-center gap-2 border border-white/10 px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-white/5">
+              <motion.button 
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="group flex items-center gap-2 border border-white/10 px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-white/5"
+              >
                 Join The Ranks
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
+              </motion.button>
             </div>
 
             {/* List */}
-            <div className="border-t border-white/10">
+            <motion.div 
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              className="border-t border-white/10"
+            >
               {earners.map((earner) => (
-                <div
+                <motion.div
                   key={earner.rank}
+                  variants={item}
                   className="group grid grid-cols-12 items-center border-b border-white/10 py-6 hover:bg-white/5 transition-colors px-4"
                 >
                   <div className="col-span-5 flex items-center gap-8">
@@ -127,9 +176,9 @@ export default function TopEarners() {
                       <ArrowUpRight className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
                      </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Task Flow",
+  title: "Task Flow - Micro Tasking and Earning Platform",
   description: "Micro Tasking and Earning Platform",
 };
 
@@ -23,6 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
+        suppressHydrationWarning
         className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
       >
         {children}

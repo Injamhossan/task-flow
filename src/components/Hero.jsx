@@ -1,4 +1,7 @@
+"use client";
+
 import { Play, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Hero() {
   return (
@@ -18,30 +21,50 @@ export default function Hero() {
       />
       
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center w-full max-w-[1700px] px-4 text-center my-auto">
+      <div className="relative z-10 flex flex-col items-center w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 text-center my-auto">
         
         {/* Badge */}
-        <div className="mb-8 flex items-center gap-2 px-4 py-1.5 text-[12px] font-inter tracking-widest text-primary uppercase border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 flex items-center gap-2 px-4 py-1.5 text-[14px] font-inter tracking-widest text-primary uppercase border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer"
+        >
           <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
           Platform Update v2.0 is Live
           <ArrowRight className="w-3 h-3" />
-        </div>
+        </motion.div>
 
         {/* Main Heading */}
-        <h1 className="flex flex-col items-center text-6xl font-inter tracking-tighter sm:text-7xl md:text-8xl lg:text-9xl uppercase font-primary">
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex flex-col items-center text-6xl font-inter tracking-tighter sm:text-7xl md:text-8xl lg:text-9xl uppercase font-primary font-bold"
+        >
           <span className="text-white">Micro Tasks.</span>
           <span className="text-transparent" style={{ WebkitTextStroke: "2px #bfff00", color: "transparent" }}>
             Macro Rewards.
           </span>
-        </h1>
+        </motion.h1>
 
         {/* Description */}
-        <p className="max-w-2xl mt-8 text-lg font-secondary text-zinc-400 sm:text-xl">
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="max-w-2xl mt-8 text-lg font-secondary text-zinc-400 sm:text-xl"
+        >
           The new era of work is here. Complete simple tasks, earn real money, build your future—all from anywhere in the world.
-        </p>
+        </motion.p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col gap-4 mt-10 sm:flex-row">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="flex flex-col gap-4 mt-10 sm:flex-row"
+        >
           <button className="flex items-center gap-2 px-8 py-4 text-[18px] font-inter font-bold tracking-widest text-black uppercase bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] rounded-sm">
             Start Earning Now
             <ArrowRight className="w-4 h-4" />
@@ -51,26 +74,42 @@ export default function Hero() {
             <Play className="w-3 h-3 fill-white group-hover:scale-110 transition-transform" />
             Watch Demo
           </button>
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-12 mt-24 md:grid-cols-4 border-t border-white/5 pt-12 mb-12 w-full max-w-4xl">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="grid grid-cols-2 gap-12 mt-24 md:grid-cols-4 border-t border-white/5 pt-12 mb-12 w-full max-w-4xl"
+        >
            {[
              { value: "50K+", label: "Active Workers" },
              { value: "$2M+", label: "Paid Out" },
              { value: "99.9%", label: "Uptime" },
              { value: "24/7", label: "Support" },
            ].map((stat, i) => (
-             <div key={i} className="flex flex-col items-center">
+             <motion.div 
+               key={i} 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.5, delay: 1 + (i * 0.1) }}
+               className="flex flex-col items-center"
+             >
                <span className="text-[48px] font-[600] font-inter text-primary">{stat.value}</span>
                <span className="mt-1 text-[14px] font-inter tracking-widest text-zinc-500 uppercase">{stat.label}</span>
-             </div>
+             </motion.div>
            ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* Marquee */}
-      <div className="w-full overflow-hidden border-t border-white/5 z-20 mt-auto">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.5 }}
+        className="w-full overflow-hidden border-t border-white/5 z-20 mt-auto"
+      >
         <div className="flex whitespace-nowrap py-6 animate-marquee">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex items-center gap-16 px-8">
@@ -88,13 +127,13 @@ export default function Hero() {
               ].map((item) => (
                 <div key={item} className="flex items-center gap-4">
                   <div className="w-1.5 h-1.5 bg-primary" />
-                  <span className="text-[36px] font-bold tracking-widest text-[#52525b] uppercase font-primary">{item}</span>
+                  <span className="text-[16px] font-bold tracking-widest text-[#52525b] uppercase font-primary">{item}</span>
                 </div>
               ))}
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
       
       {/* Bottom fade */}
       <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none" />
