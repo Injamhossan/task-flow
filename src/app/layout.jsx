@@ -1,0 +1,32 @@
+import { Space_Grotesk, Inter } from "next/font/google";
+import "@/style/globals.css";
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export const metadata = {
+  title: "Task Flow",
+  description: "Micro Tasking and Earning Platform",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body
+        className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
