@@ -1,29 +1,87 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "@/auth/firebase.config";
+import { useRouter } from "next/navigation";
 import { MoveLeft, Zap, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    role: "worker",
   });
 
   const handleGoogleRegister = async () => {
     setIsLoading(true);
-    await signIn("google", { callbackUrl: "/" });
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      // Save user to MongoDB with selected role
+      await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          role: formData.role, 
+        }),
+      });
+
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    // Placeholder for registration logic
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+
+    try {
+       // 1. Create user in Firebase
+       const { createUserWithEmailAndPassword, updateProfile } = await import("firebase/auth");
+       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+       const user = userCredential.user;
+
+       // 2. Update Profile Display Name
+       await updateProfile(user, {
+         displayName: formData.name
+       });
+
+       // 3. Save to MongoDB
+       await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+        }),
+      });
+
+      router.push("/");
+    } catch (error) {
+      console.error("Registration Error:", error);
+      // You might want to show a toast or error message here
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -118,6 +176,38 @@ export default function RegisterPage() {
             </p>
           </motion.div>
 
+          {/* Role Selection */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="grid grid-cols-2 gap-4"
+          >
+            <div 
+              onClick={() => setFormData({...formData, role: "worker"})}
+              className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                formData.role === "worker" 
+                  ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(191,255,0,0.2)]" 
+                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-white"
+              }`}
+            >
+              <h3 className="font-bold text-lg mb-1">I am a Worker</h3>
+              <p className="text-xs opacity-80">I want to complete tasks and earn money.</p>
+            </div>
+            
+            <div 
+              onClick={() => setFormData({...formData, role: "buyer"})}
+              className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                formData.role === "buyer" 
+                  ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(191,255,0,0.2)]" 
+                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-white"
+              }`}
+            >
+              <h3 className="font-bold text-lg mb-1">I am a Buyer</h3>
+              <p className="text-xs opacity-80">I want to post tasks and get work done.</p>
+            </div>
+          </motion.div>
+
           {/* Social Auth */}
           <motion.button
             initial={{ opacity: 0, y: 20 }}
@@ -183,6 +273,7 @@ export default function RegisterPage() {
                      onChange={(e) => setFormData({...formData, name: e.target.value})}
                      className="w-full bg-zinc-900/50 border border-zinc-800 rounded-sm py-4 pl-12 pr-4 text-white placeholder-zinc-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-inter"
                      placeholder="John Doe"
+                     required
                    />
                 </div>
              </div>
@@ -197,6 +288,7 @@ export default function RegisterPage() {
                      onChange={(e) => setFormData({...formData, email: e.target.value})}
                      className="w-full bg-zinc-900/50 border border-zinc-800 rounded-sm py-4 pl-12 pr-4 text-white placeholder-zinc-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-inter"
                      placeholder="name@example.com"
+                     required
                    />
                 </div>
              </div>
@@ -211,6 +303,7 @@ export default function RegisterPage() {
                      onChange={(e) => setFormData({...formData, password: e.target.value})}
                      className="w-full bg-zinc-900/50 border border-zinc-800 rounded-sm py-4 pl-12 pr-4 text-white placeholder-zinc-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-inter"
                      placeholder="Create a strong password"
+                     required
                    />
                 </div>
              </div>
