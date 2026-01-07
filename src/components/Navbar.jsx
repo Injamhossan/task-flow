@@ -8,7 +8,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/auth/firebase.config";
 
 export default function Navbar() {
-  const { user, loading } = useAuth();
+  const { user, loading, userData } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -24,75 +24,92 @@ export default function Navbar() {
           </div>
           <span className="text-xl font-bold tracking-wide text-white font-primary">TASKFLOW</span>
         </Link>
-
-        <div className="hidden md:flex items-center gap-8 translate-x-12">
-          {["FEATURES", "TOP WORKERS", "REVIEWS"].map((item) => (
-            <Link
-              key={item}
-              href={`#${item.toLowerCase().replace(" ", "-")}`}
-              className="text-[14px] font-bold  font-inter tracking-[0.2em] text-zinc-400 hover:text-primary transition-colors uppercase"
-            >
-              {item}
-            </Link>
-          ))}
+        
+        {/* Centered Navigation */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center gap-8">
+           <Link href="/about" className="text-sm font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest">About</Link>
+           <Link href="/contact" className="text-sm font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest">Contact</Link>
+           <Link
+            href="/join-as-developer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-all text-xs font-bold text-white uppercase tracking-wider"
+          >
+            Join as Dev
+          </Link>
         </div>
 
         <div className="flex items-center gap-6">
+
+
           {loading ? (
              <div className="w-20 h-10 bg-zinc-900 animate-pulse rounded-sm" />
           ) : user ? (
-            <div className="relative">
-              <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 pl-2 pr-4 py-1.5 rounded-full transition-all group"
-              >
-                <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden flex items-center justify-center border border-zinc-700">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="User" className="w-full h-full object-cover" />
-                  ) : (
-                    <UserIcon size={16} className="text-zinc-400" />
-                  )}
-                </div>
-                <span className="text-sm font-medium text-zinc-300 group-hover:text-white max-w-[100px] truncate">
-                  {user.displayName?.split(" ")[0] || "User"}
-                </span>
-              </button>
+            <div className="flex items-center gap-4">
 
-              {isDropdownOpen && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden z-20 flex flex-col py-1">
-                     <div className="px-4 py-3 border-b border-zinc-800">
-                        <p className="text-sm font-bold text-white truncate">{user.displayName || "User"}</p>
-                        <p className="text-xs text-zinc-500 truncate">{user.email}</p>
-                     </div>
-                     <Link 
-                       href="/dashboard"
-                       onClick={() => setIsDropdownOpen(false)}
-                       className="flex items-center gap-2 px-4 py-3 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors"
-                     >
-                       <LayoutDashboard size={16} />
-                       Dashboard
-                     </Link>
-                     <button
-                       onClick={() => {
-                         handleLogout();
-                         setIsDropdownOpen(false);
-                       }}
-                       className="flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/10 transition-colors text-left w-full"
-                     >
-                       <LogOut size={16} />
-                       Logout
-                     </button>
+              
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-full text-zinc-300">
+                <Coins size={16} className="text-yellow-500" />
+                <span className="font-bold font-inter">{userData?.coin || 0}</span>
+              </div>
+
+              <div className="relative">
+                <button 
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 pl-2 pr-4 py-1.5 rounded-full transition-all group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden flex items-center justify-center border border-zinc-700">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="User" className="w-full h-full object-cover" />
+                    ) : (
+                      <UserIcon size={16} className="text-zinc-400" />
+                    )}
                   </div>
-                </>
-              )}
+                  <span className="hidden sm:block text-sm font-medium text-zinc-300 group-hover:text-white max-w-[100px] truncate">
+                    {user.displayName?.split(" ")[0] || "User"}
+                  </span>
+                </button>
+
+                {isDropdownOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsDropdownOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden z-20 flex flex-col py-1">
+                       <div className="px-4 py-3 border-b border-zinc-800">
+                          <p className="text-sm font-bold text-white truncate">{user.displayName || "User"}</p>
+                          <p className="text-xs text-zinc-500 truncate">{user.email}</p>
+                          <div className="flex md:hidden items-center gap-2 mt-2 text-zinc-400">
+                            <Coins size={14} className="text-yellow-500" />
+                            <span className="text-xs">{userData?.coin || 0} Coins</span>
+                          </div>
+                       </div>
+                       
+                       <Link 
+                         href="/dashboard"
+                         onClick={() => setIsDropdownOpen(false)}
+                         className="flex items-center gap-2 px-4 py-3 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors"
+                       >
+                         <LayoutDashboard size={16} />
+                         Dashboard
+                       </Link>
+
+                       <button
+                         onClick={() => {
+                           handleLogout();
+                           setIsDropdownOpen(false);
+                         }}
+                         className="flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/10 transition-colors text-left w-full"
+                       >
+                         <LogOut size={16} />
+                         Logout
+                       </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           ) : (
-            <>
+            <div className="flex items-center gap-4">
               <Link
                 href="/login"
                 className="text-[14px] font-[600] font-inter tracking-widest text-white hover:text-primary transition-colors uppercase"
@@ -103,9 +120,9 @@ export default function Navbar() {
                 href="/register"
                 className="px-6 py-2.5 text-[14px] font-[600] font-inter tracking-widest text-black bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
               >
-                Get Started
+                Register
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>

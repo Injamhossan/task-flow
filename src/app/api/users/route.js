@@ -49,3 +49,34 @@ export async function POST(request) {
     );
   }
 }
+
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const email = searchParams.get("email");
+
+  if (!email) {
+    return NextResponse.json(
+      { message: "Email is required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    await dbConnect();
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

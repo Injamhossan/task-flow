@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Wallet, CheckCircle, Clock } from "lucide-react";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   
   // Dummy stats
   const stats = [
@@ -20,7 +20,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold font-inter tracking-tight">Dashboard</h1>
-          <p className="text-zinc-400 mt-1">Welcome back, {user?.displayName || "Worker"}!</p>
+          <p className="text-zinc-400 mt-1">Welcome back, {user?.displayName} <span className="capitalize">({role})</span>!</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 flex items-center gap-3">

@@ -11,18 +11,34 @@ const AuthContext = createContext({
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser?.email) {
+        try {
+          const res = await fetch(`/api/users?email=${currentUser.email}`);
+          if (res.ok) {
+            const data = await res.json();
+            setUserData(data);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        setUserData(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>;
+  const role = userData?.role;
+
+  return <AuthContext.Provider value={{ user, userData, role, loading }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
