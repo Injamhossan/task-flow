@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Search, Filter, Briefcase, Calendar, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -96,9 +97,11 @@ export default function TasksPage() {
                  {task.payable_amount}
                  <Coins size={18} className="text-yellow-500" />
                </div>
-               <Button variant="secondary" size="sm" className="font-bold">
-                 View Details
-               </Button>
+               <Link href={`/dashboard/task-details/${task._id}`}>
+                 <Button variant="secondary" size="sm" className="font-bold">
+                   View Details
+                 </Button>
+               </Link>
             </CardFooter>
            </Card>
           </motion.div>
