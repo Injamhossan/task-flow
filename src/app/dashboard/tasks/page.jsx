@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 
 import { motion } from "framer-motion";
-import { Search, Filter, Briefcase, Calendar, DollarSign } from "lucide-react";
+import { Search, Filter, Briefcase, Calendar, Coins } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState([]);
@@ -41,17 +45,17 @@ export default function TasksPage() {
           <p className="text-zinc-400 mt-1">Browse and complete tasks to earn rewards.</p>
         </div>
         <div className="flex gap-2">
-           <div className="relative">
+           <div className="relative w-full md:w-64">
              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-             <input 
+             <Input 
                type="text" 
                placeholder="Search tasks..." 
-               className="bg-zinc-900 border border-zinc-800 rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary w-full md:w-64"
+               className="pl-10"
              />
            </div>
-           <button className="p-2 bg-zinc-900 border border-zinc-800 rounded-md hover:bg-zinc-800 transition-colors">
-             <Filter size={20} className="text-zinc-400" />
-           </button>
+           <Button variant="outline" size="icon">
+             <Filter size={18} />
+           </Button>
         </div>
       </div>
 
@@ -62,24 +66,21 @@ export default function TasksPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-zinc-700 transition-all hover:translate-y-[-2px] group flex flex-col justify-between"
           >
-            <div>
-              <div className="flex justify-between items-start mb-4">
-                <span className="px-2 py-1 bg-zinc-800 rounded text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task</span>
-                <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${
-                  task.payable_amount > 10 ? 'bg-red-500/10 text-red-500' :
-                  task.payable_amount > 5 ? 'bg-yellow-500/10 text-yellow-500' :
-                  'bg-green-500/10 text-green-500'
-                }`}>
+           <Card className="h-full flex flex-col hover:border-zinc-700 transition-colors">
+            <CardHeader>
+              <div className="flex justify-between items-start mb-2">
+                <Badge variant="secondary" className="uppercase tracking-wider">Task</Badge>
+                <Badge variant={task.payable_amount > 10 ? "destructive" : "default"} className={`uppercase tracking-wider ${task.payable_amount <= 10 ? "bg-green-500/10 text-green-500 hover:bg-green-500/20" : ""}`}>
                   {task.payable_amount > 10 ? 'High Reward' : 'Standard'}
-                </span>
+                </Badge>
               </div>
-              
-              <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{task.task_title}</h3>
+              <CardTitle className="line-clamp-1">{task.task_title}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1">
               <p className="text-zinc-500 text-sm mb-4 line-clamp-2">{task.task_detail}</p>
               
-              <div className="flex items-center gap-4 text-zinc-400 text-sm mb-6">
+              <div className="flex items-center gap-4 text-zinc-400 text-sm">
                 <div className="flex items-center gap-1.5">
                   <Calendar size={14} />
                   <span>{new Date(task.completion_date).toLocaleDateString()}</span>
@@ -89,17 +90,17 @@ export default function TasksPage() {
                   <span>{task.required_workers} slots</span>
                 </div>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between border-t border-zinc-800 pt-4 mt-auto">
-               <div className="flex items-center gap-1 text-white font-bold text-lg">
-                 <DollarSign size={18} className="text-primary" />
+            </CardContent>
+            <CardFooter className="border-t border-zinc-800 pt-4 flex items-center justify-between">
+               <div className="flex items-center gap-1.5 text-white font-bold text-lg">
                  {task.payable_amount}
+                 <Coins size={18} className="text-yellow-500" />
                </div>
-               <button className="px-4 py-2 bg-white text-black text-sm font-bold rounded-sm hover:bg-zinc-200 transition-colors">
+               <Button variant="secondary" size="sm" className="font-bold">
                  View Details
-               </button>
-            </div>
+               </Button>
+            </CardFooter>
+           </Card>
           </motion.div>
         ))}
       </div>

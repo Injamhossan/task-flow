@@ -8,12 +8,13 @@ import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/auth/firebase.config";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function Navbar() {
   const { user, loading, userData } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  // const [notifications, setNotifications] = useState([]); // Removed state
 
   const router = useRouter();
   
@@ -22,36 +23,38 @@ export default function Navbar() {
     router.push("/");
   };
 
-  // Real-time Notification Polling
+  // Real-time Notification Polling with React Query
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications', user?.email],
+    queryFn: async () => {
+        if (!user?.email) return [];
+        const res = await fetch(`/api/notifications?email=${user.email}`);
+        if (!res.ok) return [];
+        return res.json();
+    },
+    enabled: !!user?.email,
+    refetchInterval: 10000, 
+  });
+/*
   useEffect(() => {
     let interval;
     const fetchNotifications = async () => {
-      if (user?.email) {
-        try {
-          const res = await fetch(`/api/notifications?email=${user.email}`);
-          if (res.ok) {
-            const data = await res.json();
-            setNotifications(data);
-          }
-        } catch (error) {
-          console.error("Error fetching notifications", error);
-        }
-      }
+       // ... removed manual fetch
     };
-
-    if (user?.email) {
-      fetchNotifications(); // Initial fetch
-      interval = setInterval(fetchNotifications, 10000); // Poll every 10s
-    }
-
-    return () => clearInterval(interval);
+    // ... removed
   }, [user]);
+*/
+
+  const queryClient = useQueryClient(); // Add this
+  
+  // ... (useQuery code remains same) ...
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md border-b border-white/5 text-white">
       <div className="flex items-center justify-between w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        {/* ... (Logo and links remain same) ... */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="flex items-center justify-center w-10 h-10 rounded-sm bg-primary text-black transition-transform group-hover:scale-105">
             <Zap className="w-6 h-6 fill-current" />
@@ -76,15 +79,11 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-6">
-
-
           {loading ? (
              <div className="w-20 h-10 bg-zinc-900 animate-pulse rounded-sm" />
           ) : user ? (
             <div className="flex items-center gap-4">
 
-              
-              
                {/* Notification Bell */}
                <div className="relative">
                  <button 
@@ -100,30 +99,68 @@ export default function Navbar() {
                  {isNotifOpen && (
                    <>
                      <div 
-                        className="fixed inset-0 z-10"
+                        className="fixed inset-0 z-40 bg-black/20"
                         onClick={() => setIsNotifOpen(false)}
                       />
-                     <div className="absolute right-0 top-full mt-2 w-80 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden z-20 flex flex-col max-h-[400px]">
-                        <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center">
-                           <h3 className="font-bold text-sm">Notifications</h3>
+                     <div className="absolute right-0 top-full mt-2 w-80 bg-zinc-900 border border-zinc-800 rounded-lg shadow-2xl overflow-hidden z-50 flex flex-col max-h-[400px]">
+                        <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-950">
+                           <h3 className="font-bold text-sm text-white">Notifications</h3>
                            <span className="text-xs text-zinc-500">{unreadCount} unread</span>
                         </div>
                         <div className="overflow-y-auto">
                            {notifications.length === 0 ? (
-                             <div className="p-8 text-center text-zinc-500 text-sm">
-                               No new notifications
+                             <div className="p-8 text-center text-zinc-500 text-sm flex flex-col items-center">
+                               <Bell size={24} className="mb-2 opacity-20" />
+                               <p className="mb-4">No new notifications</p>
+                               <button 
+                                 onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                        await fetch('/api/notifications', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                message: "This is a test notification to verify the system.",
+                                                toEmail: user.email,
+                                                actionRoute: "/dashboard"
+                                            })
+                                        });
+                                        // Trigger immediate re-fetch
+                                        queryClient.invalidateQueries({ queryKey: ['notifications', user?.email] });
+                                    } catch (err) {
+                                        console.error("Failed to send test notif");
+                                    }
+                                 }}
+                                 className="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2 rounded-md transition-colors"
+                               >
+                                 Send Test Notification
+                               </button>
                              </div>
                            ) : (
                              notifications.map((notif, i) => (
                                <div 
                                  key={i} 
-                                 className={`px-4 py-3 border-b border-zinc-800/50 hover:bg-zinc-800/50 transition-colors cursor-pointer ${!notif.read ? 'bg-zinc-800/20' : ''}`}
-                                 onClick={() => {
+                                 className={`px-4 py-3 border-b border-zinc-800/50 hover:bg-zinc-800 transition-colors cursor-pointer ${!notif.read ? 'bg-zinc-800/40 border-l-2 border-l-primary' : ''}`}
+                                 onClick={async () => {
+                                    // Mark as read
+                                    try {
+                                       await fetch('/api/notifications', {
+                                          method: 'PATCH',
+                                          body: JSON.stringify({ id: notif._id })
+                                       });
+                                       // Update local state (Optimistic)
+                                       queryClient.setQueryData(['notifications', user?.email], (oldData) => 
+                                          oldData ? oldData.map(n => n._id === notif._id ? { ...n, read: true } : n) : []
+                                       );
+                                    } catch (err) {
+                                       console.error("Failed to mark read");
+                                    }
+                                    
                                     if(notif.actionRoute) router.push(notif.actionRoute);
                                     setIsNotifOpen(false);
                                  }}
                                >
-                                  <p className="text-sm text-zinc-300">{notif.message}</p>
+                                  <p className={`text-sm ${!notif.read ? 'text-white font-medium' : 'text-zinc-400'}`}>{notif.message}</p>
                                   <p className="text-xs text-zinc-600 mt-1">{new Date(notif.createdAt).toLocaleDateString()}</p>
                                </div>
                              ))
@@ -134,10 +171,13 @@ export default function Navbar() {
                  )}
                </div>
 
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-full text-zinc-300">
-                <Coins size={16} className="text-yellow-500" />
-                <span className="font-bold font-inter">{userData?.coin || 0}</span>
-              </div>
+               {/* Coin Balance - Hidden for Admin */}
+               {userData?.role !== "admin" && (
+                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-full text-zinc-300">
+                   <Coins size={16} className="text-yellow-500" />
+                   <span className="font-bold font-inter">{userData?.coin || 0}</span>
+                 </div>
+               )}
 
               <div className="relative">
                 <button 
@@ -168,10 +208,12 @@ export default function Navbar() {
                             {user?.email === "admin@taskflow.com" ? "Admin" : (userData?.name || user?.displayName || "User")}
                           </p>
                           <p className="text-xs text-zinc-500 truncate">{user.email}</p>
-                          <div className="flex md:hidden items-center gap-2 mt-2 text-zinc-400">
-                            <Coins size={14} className="text-yellow-500" />
-                            <span className="text-xs">{userData?.coin || 0} Coins</span>
-                          </div>
+                          {userData?.role !== "admin" && (
+                             <div className="flex md:hidden items-center gap-2 mt-2 text-zinc-400">
+                               <Coins size={14} className="text-yellow-500" />
+                               <span className="text-xs">{userData?.coin || 0} Coins</span>
+                             </div>
+                          )}
                        </div>
                        
                        <Link 

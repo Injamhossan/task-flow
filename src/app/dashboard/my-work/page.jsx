@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Clock, XCircle, ExternalLink } from "lucide-react";
+import { CheckCircle, Clock, XCircle, ExternalLink, Coins } from "lucide-react";
 
 export default function MyWorkPage() {
   const [activeTab, setActiveTab] = useState("all");
 
   const submissions = [
-    { id: 101, task: "Watch Youtube Video", status: "Approved", date: "2023-10-25", earning: "$0.10" },
-    { id: 102, task: "Like Facebook Post", status: "Pending", date: "2023-10-26", earning: "$0.05" },
-    { id: 103, task: "Install Mobile App", status: "Rejected", date: "2023-10-24", earning: "$2.00" },
-    { id: 104, task: "Write a Review", status: "Approved", date: "2023-10-23", earning: "$0.50" },
+    { id: 101, task: "Watch Youtube Video", status: "Approved", date: "2023-10-25", earning: 20 },
+    { id: 102, task: "Like Facebook Post", status: "Pending", date: "2023-10-26", earning: 10 },
+    { id: 103, task: "Install Mobile App", status: "Rejected", date: "2023-10-24", earning: 50 },
+    { id: 104, task: "Write a Review", status: "Approved", date: "2023-10-23", earning: 30 },
   ];
 
   const filteredSubmissions = activeTab === "all" 
@@ -54,7 +54,7 @@ export default function MyWorkPage() {
               <tr>
                 <th className="px-6 py-4">Task Name</th>
                 <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Potential Earning</th>
+                <th className="px-6 py-4">Payable Amount</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Action</th>
               </tr>
@@ -65,7 +65,12 @@ export default function MyWorkPage() {
                   <tr key={sub.id} className="hover:bg-zinc-800/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-white">{sub.task}</td>
                     <td className="px-6 py-4 text-zinc-400">{sub.date}</td>
-                    <td className="px-6 py-4 text-zinc-300">{sub.earning}</td>
+                    <td className="px-6 py-4">
+                       <div className="flex items-center gap-1 text-zinc-300 font-bold">
+                          {sub.earning}
+                          <Coins size={14} className="text-yellow-500" />
+                       </div>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
                         sub.status === 'Approved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :

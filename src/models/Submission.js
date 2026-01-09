@@ -1,0 +1,23 @@
+
+import mongoose from "mongoose";
+
+const SubmissionSchema = new mongoose.Schema(
+  {
+    task_id: { type: mongoose.Schema.Types.ObjectId, ref: "Task", required: true },
+    task_title: { type: String, required: true },
+    payable_amount: { type: Number, required: true },
+    worker_email: { type: String, required: true },
+    worker_name: { type: String, required: true },
+    buyer_email: { type: String, required: true },
+    buyer_name: { type: String, required: true },
+    submission_details: { type: String, required: true }, // proof text or whatever
+    status: { 
+      type: String, 
+      enum: ["pending", "approved", "rejected"], 
+      default: "pending" 
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.Submission || mongoose.model("Submission", SubmissionSchema);

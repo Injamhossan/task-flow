@@ -44,7 +44,7 @@ export default function Footer() {
           whileInView={{ opacity: 0.5, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2 }}
-          className="text-[15vw] md:text-[20vw] font-black font-inter text-zinc-900/40 tracking-tighter whitespace-nowrap"
+          className="text-[13vw] md:text-[18vw] font-black font-inter text-zinc-900/40 tracking-tighter whitespace-nowrap"
         >
           TASKFLOW
         </motion.div>

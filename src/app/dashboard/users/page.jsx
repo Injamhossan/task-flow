@@ -93,7 +93,25 @@ export default function ManageUsersPage() {
                   </td>
                   <td className="px-6 py-4 font-mono text-primary">{u.coin}</td>
                   <td className="px-6 py-4 text-right">
-                     <button className="text-red-500 hover:text-red-400 text-xs font-bold uppercase">Remove</button>
+                     {u.role === 'admin' ? (
+                       <span className="text-zinc-500 text-xs font-bold uppercase cursor-not-allowed">Admin</span>
+                     ) : (
+                       <button 
+                         onClick={async () => {
+                            if(confirm("Are you sure you want to delete this user?")) {
+                                try {
+                                    await fetch(`/api/admin/users?id=${u._id}`, { method: 'DELETE' });
+                                    setUsers(users.filter(user => user._id !== u._id));
+                                } catch(err) {
+                                    console.error(err);
+                                }
+                            }
+                         }}
+                         className="text-red-500 hover:text-red-400 text-xs font-bold uppercase"
+                       >
+                         Remove
+                       </button>
+                     )}
                   </td>
                 </tr>
               ))}

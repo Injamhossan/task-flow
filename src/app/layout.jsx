@@ -1,6 +1,7 @@
 import { Space_Grotesk, Inter } from "next/font/google";
 import "@/style/globals.css";
 import AuthProvider from "@/components/AuthProvider";
+import Providers from "@/components/Providers";
 import SmoothScroll from "@/components/SmoothScroll";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -30,14 +31,16 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
         className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
       >
-        <AuthProvider>
-          <SmoothScroll />
-          <Navbar />
-          <div className="pt-20 min-h-screen">
-            {children}
-          </div>
-          <Footer />
-        </AuthProvider>
+        <Providers>
+          <AuthProvider>
+            <SmoothScroll />
+            <Navbar />
+            <div className="pt-20 min-h-screen">
+              {children}
+            </div>
+            <Footer />
+          </AuthProvider>
+        </Providers>
       </body>
     </html>
   );

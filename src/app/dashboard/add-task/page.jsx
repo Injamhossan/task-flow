@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
-import { Loader2, UploadCloud, DollarSign, Users, Calendar, FileText, Type, AlertCircle } from "lucide-react";
+import { Loader2, UploadCloud, Coins, Users, Calendar, FileText, Type, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 export default function AddTaskPage() {
-  const { user, userData, loading } = useAuth();
+  const { user, userData, loading, refetchUser } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   
@@ -54,8 +57,12 @@ export default function AddTaskPage() {
         throw new Error(data.message || "Something went wrong");
       }
 
+      // Instant Update
+      refetchUser();
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+
       router.push("/dashboard/my-tasks");
-      router.refresh(); // Refresh to update coin balance in sidebar/header if connected
+      router.refresh(); 
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -133,7 +140,7 @@ export default function AddTaskPage() {
            <div className="space-y-2">
               <label className="text-sm font-bold uppercase tracking-widest text-zinc-500 ml-1">Payable Amount (Coins)</label>
               <div className="relative group">
-                 <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-white transition-colors" />
+                 <Coins className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-white transition-colors" />
                  <input 
                    type="number" 
                    min="1"
@@ -169,7 +176,7 @@ export default function AddTaskPage() {
                   {totalCost} <span className="text-sm font-bold text-zinc-500">Coins</span>
                </div>
                <div className="absolute right-0 bottom-0 opacity-10">
-                  <DollarSign size={60} />
+                  <Coins size={60} />
                </div>
            </div>
         </div>
