@@ -3,6 +3,7 @@ import Withdrawal from "@/models/Withdrawal";
 import User from "@/models/User";
 import Notification from "@/models/Notification";
 import { NextResponse } from "next/server";
+import { sendEmail } from "@/lib/email";
 
 export async function GET(request) {
   try {
@@ -61,6 +62,21 @@ export async function PATCH(request) {
         toEmail: withdrawal.worker_email,
         actionRoute: "/dashboard/withdrawals", // Or wallet
         time: new Date()
+      });
+
+      // Send Email
+      await sendEmail({
+        to: withdrawal.worker_email,
+        subject: "Withdrawal Approved - TaskFlow",
+        html: `
+          <div style="font-family: Arial, sans-serif;">
+            <h2>Withdrawal Approved</h2>
+            <p>Great news! Your withdrawal request for <strong>$${withdrawal.withdrawal_amount}</strong> has been processed and approved.</p>
+            <p>Funds will be transferred to your ${withdrawal.payment_system} account (${withdrawal.account_number}) shortly.</p>
+            <br/>
+            <p>Keep earning!</p>
+          </div>
+        `
       });
     }
 

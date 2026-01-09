@@ -5,6 +5,7 @@ import User from "@/models/User";
 import Task from "@/models/Task";
 import Notification from "@/models/Notification";
 import { NextResponse } from "next/server";
+import { sendEmail } from "@/lib/email";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -79,6 +80,17 @@ export async function PATCH(request) {
         time: new Date()
       });
 
+      // Email Worker
+      await sendEmail({
+        to: submission.worker_email,
+        subject: "Task Approved! You earned money",
+        html: `
+          <h3>Congratulation!</h3>
+          <p>Your submission for <strong>${submission.task_title}</strong> has been approved by ${submission.buyer_name}.</p>
+          <p>You have earned <strong>${submission.payable_amount} coins</strong>.</p>
+        `
+      });
+
     } else if (action === "reject") {
       // 1. Update Status
       submission.status = "rejected";
@@ -95,6 +107,17 @@ export async function PATCH(request) {
         toEmail: submission.worker_email,
         actionRoute: "/dashboard/my-work",
         time: new Date()
+      });
+
+      // Email Worker
+      await sendEmail({
+        to: submission.worker_email,
+        subject: "Task Submission Rejected",
+        html: `
+          <h3>Submission Rejected</h3>
+          <p>Unfortunately, your submission for <strong>${submission.task_title}</strong> was rejected by ${submission.buyer_name}.</p>
+          <p>Please check the task requirements and try again on other available tasks.</p>
+        `
       });
     }
 

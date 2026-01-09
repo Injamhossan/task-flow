@@ -14,12 +14,25 @@ export default function MyWorkPage() {
     { id: 104, task: "Write a Review", status: "Approved", date: "2023-10-23", earning: 30 },
   ];
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const filteredSubmissions = activeTab === "all" 
     ? submissions 
     : submissions.filter(sub => sub.status.toLowerCase() === activeTab);
 
+  const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredSubmissions.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="space-y-6">
+      {/* ... Headers ... */}
       <div>
         <h1 className="text-3xl font-bold font-inter tracking-tight">My Work</h1>
         <p className="text-zinc-400 mt-1">Track status of your submitted tasks.</p>
@@ -30,7 +43,7 @@ export default function MyWorkPage() {
         {["all", "pending", "approved", "rejected"].map((tab) => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
             className={`px-4 py-2 text-sm font-medium capitalize relative ${
               activeTab === tab ? "text-white" : "text-zinc-500 hover:text-zinc-300"
             }`}
@@ -56,12 +69,11 @@ export default function MyWorkPage() {
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Payable Amount</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800">
-              {filteredSubmissions.length > 0 ? (
-                filteredSubmissions.map((sub) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((sub) => (
                   <tr key={sub.id} className="hover:bg-zinc-800/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-white">{sub.task}</td>
                     <td className="px-6 py-4 text-zinc-400">{sub.date}</td>
@@ -83,11 +95,6 @@ export default function MyWorkPage() {
                         {sub.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-zinc-500 hover:text-white transition-colors">
-                        <ExternalLink size={18} />
-                      </button>
-                    </td>
                   </tr>
                 ))
               ) : (
@@ -101,6 +108,29 @@ export default function MyWorkPage() {
           </table>
         </div>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center pt-4">
+           <button 
+             onClick={() => handlePageChange(currentPage - 1)}
+             disabled={currentPage === 1}
+             className="px-4 py-2 border border-zinc-800 rounded bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+           >
+             Previous
+           </button>
+           <span className="text-sm text-zinc-500">
+             Page <span className="text-white font-bold">{currentPage}</span> of {totalPages}
+           </span>
+           <button 
+             onClick={() => handlePageChange(currentPage + 1)}
+             disabled={currentPage === totalPages}
+             className="px-4 py-2 border border-zinc-800 rounded bg-zinc-900 text-zinc-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+           >
+             Next
+           </button>
+        </div>
+      )}
     </div>
   );
 }

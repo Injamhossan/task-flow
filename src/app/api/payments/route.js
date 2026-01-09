@@ -4,6 +4,7 @@ import Payment from "@/models/Payment";
 import User from "@/models/User";
 import Notification from "@/models/Notification";
 import { NextResponse } from "next/server";
+import { sendEmail } from "@/lib/email";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -46,6 +47,24 @@ export async function POST(request) {
         message: `Payment Successful! You have purchased ${coins} coins.`,
         toEmail: user_email,
         actionRoute: "/dashboard/payment-history"
+    });
+
+    // 4. Send Email Notification
+    await sendEmail({
+      to: user_email,
+      subject: "Payment Confirmed - TaskFlow",
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Payment Successful!</h2>
+          <p>Thank you for your purchase.</p>
+          <p><strong>Amount:</strong> $${amount}</p>
+          <p><strong>Coins Received:</strong> ${coins}</p>
+          <p><strong>Transaction ID:</strong> ${transactionId}</p>
+          <p>Your new balance has been updated.</p>
+          <br/>
+          <p>Regards,<br/>The TaskFlow Team</p>
+        </div>
+      `
     });
 
     return NextResponse.json(newPayment, { status: 201 });

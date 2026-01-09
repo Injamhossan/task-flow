@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Zap, Coins, User as UserIcon, LayoutDashboard, LogOut, Code2, Bell } from "lucide-react";
+import { Zap, Coins, User as UserIcon, LayoutDashboard, LogOut, Code2, Bell, BadgeCheck } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
@@ -191,8 +191,13 @@ export default function Navbar() {
                       <UserIcon size={16} className="text-zinc-400" />
                     )}
                   </div>
-                  <span className="hidden sm:block text-sm font-medium text-zinc-300 group-hover:text-white max-w-[100px] truncate">
-                    {user?.email === "admin@taskflow.com" ? "Admin" : (userData?.name || user?.displayName || "User").split(" ")[0]}
+                  <span className="hidden sm:flex items-center gap-1 text-sm font-medium text-zinc-300 group-hover:text-white max-w-[150px]">
+                    <span className="truncate">
+                       {user?.email === "admin@taskflow.com" ? "Admin" : (userData?.name || user?.displayName || "User").split(" ")[0]}
+                    </span>
+                    {userData?.verified && (
+                        <BadgeCheck size={16} className="text-blue-500 fill-blue-500/10 shrink-0" />
+                    )}
                   </span>
                 </button>
 
