@@ -2,20 +2,25 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Clock, XCircle, ExternalLink, Coins } from "lucide-react";
+import { CheckCircle, Clock, XCircle, ExternalLink, Coins, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function MyWorkPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("all");
-
-  const submissions = [
-    { id: 101, task: "Watch Youtube Video", status: "Approved", date: "2023-10-25", earning: 20 },
-    { id: 102, task: "Like Facebook Post", status: "Pending", date: "2023-10-26", earning: 10 },
-    { id: 103, task: "Install Mobile App", status: "Rejected", date: "2023-10-24", earning: 50 },
-    { id: 104, task: "Write a Review", status: "Approved", date: "2023-10-23", earning: 30 },
-  ];
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const { data: submissions = [], isLoading } = useQuery({
+    queryKey: ['my-submissions', user?.email],
+    queryFn: async () => {
+        if(!user?.email) return [];
+        const res = await fetch(`/api/submissions?worker_email=${user.email}`);
+        return res.json();
+    },
+    enabled: !!user?.email
+  });
 
   const filteredSubmissions = activeTab === "all" 
     ? submissions 
@@ -30,9 +35,10 @@ export default function MyWorkPage() {
     setCurrentPage(page);
   };
 
+  if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" size={32}/></div>;
+
   return (
     <div className="space-y-6">
-      {/* ... Headers ... */}
       <div>
         <h1 className="text-3xl font-bold font-inter tracking-tight">My Work</h1>
         <p className="text-zinc-400 mt-1">Track status of your submitted tasks.</p>
@@ -74,24 +80,24 @@ export default function MyWorkPage() {
             <tbody className="divide-y divide-zinc-800">
               {currentItems.length > 0 ? (
                 currentItems.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-zinc-800/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-white">{sub.task}</td>
-                    <td className="px-6 py-4 text-zinc-400">{sub.date}</td>
+                  <tr key={sub._id} className="hover:bg-zinc-800/50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-white">{sub.task_title}</td>
+                    <td className="px-6 py-4 text-zinc-400">{new Date(sub.createdAt).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                        <div className="flex items-center gap-1 text-zinc-300 font-bold">
-                          {sub.earning}
+                          {sub.payable_amount}
                           <Coins size={14} className="text-yellow-500" />
                        </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-                        sub.status === 'Approved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
-                        sub.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
+                        sub.status === 'approved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                        sub.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
                         'bg-red-500/10 text-red-500 border border-red-500/20'
                       }`}>
-                        {sub.status === 'Approved' && <CheckCircle size={12} />}
-                        {sub.status === 'Pending' && <Clock size={12} />}
-                        {sub.status === 'Rejected' && <XCircle size={12} />}
+                        {sub.status === 'approved' && <CheckCircle size={12} />}
+                        {sub.status === 'pending' && <Clock size={12} />}
+                        {sub.status === 'rejected' && <XCircle size={12} />}
                         {sub.status}
                       </span>
                     </td>

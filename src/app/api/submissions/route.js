@@ -10,12 +10,21 @@ import { sendEmail } from "@/lib/email";
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const buyer_email = searchParams.get("buyer_email");
+  const worker_email = searchParams.get("worker_email");
 
   try {
     await dbConnect();
-    // Use proper filter object
-    const query = buyer_email ? { buyer_email, status: "pending" } : {};
-    const submissions = await Submission.find(query);
+    
+    let query = {};
+    if (buyer_email) {
+        // Buyer View: Only see pending tasks to approve
+        query = { buyer_email, status: "pending" };
+    } else if (worker_email) {
+        // Worker View: See history of all my work
+        query = { worker_email };
+    }
+
+    const submissions = await Submission.find(query).sort({ createdAt: -1 });
     return NextResponse.json(submissions, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Error fetching submissions" }, { status: 500 });
@@ -30,10 +39,34 @@ export async function POST(request) {
     const body = await request.json();
     await dbConnect();
 
-    // 1. Create Submission
+    // 1. Validate Task Availability
+    const task = await Task.findById(body.task_id);
+    if (!task) {
+        return NextResponse.json({ message: "Task not found" }, { status: 404 });
+    }
+
+    if (task.required_workers <= 0) {
+        return NextResponse.json({ message: "No slots available for this task" }, { status: 400 });
+    }
+
+    // 2. Prevent Duplicate Submission
+    const existingSubmission = await Submission.findOne({ 
+        task_id: body.task_id, 
+        worker_email: body.worker_email 
+    });
+
+    if (existingSubmission) {
+        return NextResponse.json({ message: "You have already submitted this task" }, { status: 400 });
+    }
+
+    // 3. Create Submission
     const newSubmission = await Submission.create(body);
 
-    // 3. Notify Buyer
+    // 4. Decrement Task Slots
+    task.required_workers = task.required_workers - 1;
+    await task.save();
+
+    // 5. Notify Buyer
     await Notification.create({
       message: `${body.worker_name} has submitted task: ${body.task_title}`,
       toEmail: body.buyer_email,

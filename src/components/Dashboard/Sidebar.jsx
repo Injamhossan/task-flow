@@ -43,7 +43,8 @@ export default function Sidebar() {
   const buyerLinks = [
     { name: "Home", href: "/dashboard", icon: Home },
     { name: "Add New Tasks", href: "/dashboard/add-task", icon: PlusCircle },
-    { name: "My Task's", href: "/dashboard/my-tasks", icon: ClipboardList },
+    { name: "My Tasks", href: "/dashboard/my-tasks", icon: ClipboardList },
+    { name: "Submissions", href: "/dashboard/buyer-submissions", icon: FileText },
     { name: "Purchase Coin", href: "/dashboard/purchase-coin", icon: Coins },
     { name: "Payment History", href: "/dashboard/payment-history", icon: History },
     { name: "Profile", href: "/dashboard/profile", icon: Users },

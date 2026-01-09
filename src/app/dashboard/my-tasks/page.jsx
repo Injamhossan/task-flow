@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
-import { Loader2, Trash2, Edit, Calendar, Coins, Users, AlertTriangle, Check } from "lucide-react";
+import { Loader2, Trash2, Edit, Calendar, Coins, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,

@@ -148,8 +148,7 @@ export async function GET(request) {
       tasks = await Task.find({ buyer_email: email }).sort({ createdAt: -1 });
     } else {
       // Otherwise fetch all tasks with quantity > 0 (for Workers)
-      // Note: In a real app we would filter by quantity > 0
-      tasks = await Task.find({}).sort({ createdAt: -1 });
+      tasks = await Task.find({ required_workers: { $gt: 0 } }).sort({ createdAt: -1 });
     }
 
     return NextResponse.json(tasks, { status: 200 });
