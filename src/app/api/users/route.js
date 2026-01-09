@@ -26,13 +26,30 @@ export async function POST(request) {
       );
     }
 
+    // Determine Role and Coins
+    let userRole = role || "worker";
+    let userCoins = 0;
+
+    // Admin Hardcode Check
+    if (email === "admin@taskflow.com") {
+      userRole = "admin";
+      userCoins = 0; 
+    } else {
+      // Coin Logic
+      if (userRole === "worker") {
+        userCoins = 10;
+      } else if (userRole === "buyer") {
+        userCoins = 50;
+      }
+    }
+
     // Create new user
     const newUser = new User({
       name,
       email,
       photoURL,
-      role: role || "worker",
-      coin: 50, // Default coins for new users
+      role: userRole,
+      coin: userCoins,
     });
 
     await newUser.save();
@@ -72,11 +89,40 @@ export async function GET(request) {
       );
     }
 
+    // Force Admin Role for specific email if not already set
+    if (email === "admin@taskflow.com" && user.role !== "admin") {
+      user.role = "admin";
+      await user.save();
+    }
+
     return NextResponse.json(user, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
     );
+  }
+}
+
+// NEW: PATCH method to update user profile
+export async function PATCH(request) {
+  try {
+    const { email, name, photoURL } = await request.json();
+    await dbConnect();
+    
+    const updatedUser = await User.findOneAndUpdate(
+      { email }, 
+      { name, photoURL }, 
+      { new: true }
+    );
+
+    if (!updatedUser) {
+       return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedUser, { status: 200 });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

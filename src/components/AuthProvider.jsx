@@ -36,7 +36,7 @@ export default function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  const role = userData?.role;
+  const role = (user?.email === "admin@taskflow.com") ? "admin" : userData?.role;
 
   return <AuthContext.Provider value={{ user, userData, role, loading }}>{children}</AuthContext.Provider>;
 }

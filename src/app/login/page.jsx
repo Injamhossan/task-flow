@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/auth/firebase.config";
 import { useRouter } from "next/navigation";
-import { MoveLeft, Zap, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { MoveLeft, Zap, Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -13,13 +13,18 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setError("");
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      const token = await user.getIdToken();
+      localStorage.setItem("access-token", token);
 
       // Ensure user exists in MongoDB (sync)
       await fetch('/api/users', {
@@ -34,19 +39,37 @@ export default function LoginPage() {
         }),
       });
 
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
        console.error(error);
+       setError("Failed to login with Google. Please try again.");
     } finally {
        setIsLoading(false);
     }
   };
 
-  const handleEmailLogin = (e) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
-    // Placeholder for email login logic
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+    setError("");
+    
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+      const token = await user.getIdToken();
+      localStorage.setItem("access-token", token);
+      
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Login Error:", err);
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        setError("Invalid email or password.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -162,20 +185,34 @@ export default function LoginPage() {
                 </div>
              </div>
 
+             {/* Error Message */}
+             {error && (
+                <div className="bg-red-500/10 border border-red-500/50 text-red-500 text-sm p-3 rounded-sm">
+                   {error}
+                </div>
+             )}
+
              <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
                   <label className="text-xs font-bold uppercase tracking-widest text-zinc-500">Password</label>
-                  <a href="#" className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">Forgot Password?</a>
+                  <Link href="/forgot-password" className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">Forgot Password?</Link>
                 </div>
                 <div className="relative group">
                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-white transition-colors" />
                    <input 
-                     type="password" 
+                     type={showPassword ? "text" : "password"}
                      value={password}
                      onChange={(e) => setPassword(e.target.value)}
-                     className="w-full bg-zinc-900/50 border border-zinc-800 rounded-sm py-4 pl-12 pr-4 text-white placeholder-zinc-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-inter"
+                     className="w-full bg-zinc-900/50 border border-zinc-800 rounded-sm py-4 pl-12 pr-12 text-white placeholder-zinc-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-inter"
                      placeholder="••••••••"
                    />
+                   <button
+                     type="button"
+                     onClick={() => setShowPassword(!showPassword)}
+                     className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                   >
+                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                   </button>
                 </div>
              </div>
 

@@ -1,87 +1,139 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { User, Mail, Shield, Camera } from "lucide-react";
+import { useState, useEffect } from "react";
+import { updateProfile } from "firebase/auth";
+import { auth } from "@/auth/firebase.config";
+import { Loader2, User, Camera, Save } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  
+  const { user, userData, loading } = useAuth();
+  const [name, setName] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (userData) {
+      setName(userData.name || user?.displayName || "");
+      setPhotoURL(userData.photoURL || user?.photoURL || "");
+    }
+  }, [userData, user]);
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setIsUpdating(true);
+    setMessage("");
+
+    try {
+      // 1. Update Firebase Profile
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+          photoURL: photoURL
+        });
+      }
+
+      // 2. Update MongoDB
+      const res = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, name, photoURL })
+      });
+
+      if (res.ok) {
+        setMessage("Profile updated successfully!");
+        // Force reload page to reflect changes in AuthProvider or trigger a re-fetch if possible
+        window.location.reload(); 
+      } else {
+        setMessage("Failed to update database.");
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("Error updating profile.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  if (loading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" size={32}/></div>;
+
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-inter tracking-tight">Profile Settings</h1>
-        <p className="text-zinc-400 mt-1">Manage your personal information and account.</p>
-      </div>
+      <h1 className="text-3xl font-bold font-inter">My Profile</h1>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 space-y-8">
-         {/* Avatar Section */}
-         <div className="flex flex-col items-center gap-4 py-4">
-            <div className="relative group">
-              <div className="w-24 h-24 rounded-full bg-zinc-800 border-2 border-zinc-700 overflow-hidden">
-                {user?.photoURL ? (
-                  <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <User size={40} className="text-zinc-500" />
-                  </div>
-                )}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+        <form onSubmit={handleUpdateProfile} className="space-y-6">
+           
+           {/* Profile Picture Input */}
+           <div className="flex flex-col items-center gap-4 mb-8">
+              <div className="relative group">
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-zinc-800 bg-zinc-800">
+                   {photoURL ? (
+                     <img src={photoURL} alt="Profile" className="w-full h-full object-cover" />
+                   ) : (
+                     <User className="w-full h-full p-6 text-zinc-500" />
+                   )}
+                </div>
               </div>
-              <button className="absolute bottom-0 right-0 p-2 bg-primary text-black rounded-full hover:bg-white transition-colors shadow-lg">
-                <Camera size={16} />
-              </button>
-            </div>
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-white">{user?.displayName || "User Name"}</h2>
-              <p className="text-zinc-500 text-sm">Worker Account</p>
-            </div>
-         </div>
-
-         <div className="space-y-6 border-t border-zinc-800 pt-8">
-            <div className="grid gap-2">
-              <label className="text-sm font-bold uppercase tracking-wider text-zinc-500">Full Name</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                <input 
-                  type="text" 
-                  defaultValue={user?.displayName}
-                  className="w-full bg-black border border-zinc-800 rounded-md py-2.5 pl-10 pr-4 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
-                />
+              <div className="w-full max-w-sm">
+                 <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Photo URL</label>
+                 <div className="flex gap-2">
+                    <input 
+                      type="url"
+                      value={photoURL}
+                      onChange={(e) => setPhotoURL(e.target.value)}
+                      placeholder="https://example.com/avatar.jpg"
+                      className="flex-1 bg-zinc-950 border border-zinc-800 rounded px-4 py-2 text-sm text-white focus:border-primary focus:outline-none"
+                    />
+                 </div>
               </div>
-            </div>
+           </div>
 
-            <div className="grid gap-2">
-              <label className="text-sm font-bold uppercase tracking-wider text-zinc-500">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                <input 
-                  type="email" 
-                  defaultValue={user?.email}
-                  disabled
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md py-2.5 pl-10 pr-4 text-zinc-400 cursor-not-allowed"
-                />
+           <div className="space-y-4">
+              <div>
+                 <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Full Name</label>
+                 <input 
+                   type="text"
+                   value={name}
+                   onChange={(e) => setName(e.target.value)}
+                   className="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-3 text-white focus:border-primary focus:outline-none"
+                 />
               </div>
-              <p className="text-xs text-zinc-600">Email address cannot be changed for Google linked accounts.</p>
-            </div>
 
-            <div className="grid gap-2">
-              <label className="text-sm font-bold uppercase tracking-wider text-zinc-500">Role</label>
-              <div className="relative">
-                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                <input 
-                  type="text" 
-                  defaultValue="Worker"
-                  disabled
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md py-2.5 pl-10 pr-4 text-zinc-400 cursor-not-allowed"
-                />
+              <div>
+                 <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Email Address</label>
+                 <input 
+                   type="email"
+                   value={user?.email || ""}
+                   disabled
+                   className="w-full bg-zinc-950/50 border border-zinc-800 rounded px-4 py-3 text-zinc-500 cursor-not-allowed"
+                 />
               </div>
-            </div>
-         </div>
 
-         <div className="pt-4 flex justify-end">
-           <button className="px-6 py-2.5 bg-primary text-black font-bold rounded-sm hover:bg-white transition-colors shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
-             Save Changes
+              <div>
+                 <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Role</label>
+                 <span className="inline-block px-3 py-1 bg-zinc-800 text-zinc-300 rounded text-sm font-bold uppercase">
+                    {userData?.role || "User"}
+                 </span>
+              </div>
+           </div>
+
+           {message && (
+             <div className={`p-4 rounded text-sm font-bold ${message.includes("success") ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
+               {message}
+             </div>
+           )}
+
+           <button 
+             type="submit"
+             disabled={isUpdating}
+             className="flex items-center gap-2 bg-primary text-black px-6 py-3 rounded font-bold hover:bg-white transition-colors disabled:opacity-50"
+           >
+             {isUpdating ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+             Update Profile
            </button>
-         </div>
+        </form>
       </div>
     </div>
   );

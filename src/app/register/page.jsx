@@ -4,13 +4,15 @@ import { useState } from "react";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/auth/firebase.config";
 import { useRouter } from "next/navigation";
-import { MoveLeft, Zap, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { MoveLeft, Zap, Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,10 +22,13 @@ export default function RegisterPage() {
 
   const handleGoogleRegister = async () => {
     setIsLoading(true);
+    setError("");
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      const token = await user.getIdToken();
+      localStorage.setItem("access-token", token);
       
       // Save user to MongoDB with selected role
       await fetch('/api/users', {
@@ -39,9 +44,10 @@ export default function RegisterPage() {
         }),
       });
 
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       console.error(error);
+      setError("Failed to register with Google.");
     } finally {
       setIsLoading(false);
     }
@@ -50,12 +56,22 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
+
+    // Basic Validation
+    if (formData.password.length < 6) {
+        setError("Password must be at least 6 characters long.");
+        setIsLoading(false);
+        return;
+    }
 
     try {
        // 1. Create user in Firebase
        const { createUserWithEmailAndPassword, updateProfile } = await import("firebase/auth");
        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
        const user = userCredential.user;
+       const token = await user.getIdToken();
+       localStorage.setItem("access-token", token);
 
        // 2. Update Profile Display Name
        await updateProfile(user, {
@@ -75,10 +91,16 @@ export default function RegisterPage() {
         }),
       });
 
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Registration Error:", error);
-      // You might want to show a toast or error message here
+      if (error.code === 'auth/email-already-in-use') {
+          setError("This email is already registered. Please login.");
+      } else if (error.code === 'auth/weak-password') {
+          setError("Password should be at least 6 characters.");
+      } else {
+          setError("Registration failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -298,15 +320,29 @@ export default function RegisterPage() {
                 <div className="relative group">
                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-white transition-colors" />
                    <input 
-                     type="password" 
+                     type={showPassword ? "text" : "password"}
                      value={formData.password}
                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                     className="w-full bg-zinc-900/50 border border-zinc-800 rounded-sm py-4 pl-12 pr-4 text-white placeholder-zinc-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-inter"
+                     className="w-full bg-zinc-900/50 border border-zinc-800 rounded-sm py-4 pl-12 pr-12 text-white placeholder-zinc-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all font-inter"
                      placeholder="Create a strong password"
                      required
                    />
+                   <button
+                     type="button"
+                     onClick={() => setShowPassword(!showPassword)}
+                     className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                   >
+                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                   </button>
                 </div>
              </div>
+
+             {/* Error Message */}
+             {error && (
+                <div className="p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-sm rounded-sm flex items-center gap-2 mb-4">
+                   <span className="font-bold">Error:</span> {error}
+                </div>
+             )}
 
              <div className="pt-2">
                 <button 

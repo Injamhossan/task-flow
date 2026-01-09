@@ -1,19 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, Coins, User as UserIcon, LayoutDashboard, LogOut } from "lucide-react";
+
+import { Zap, Coins, User as UserIcon, LayoutDashboard, LogOut, Code2, Bell } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/auth/firebase.config";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, loading, userData } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
+  const router = useRouter();
+  
   const handleLogout = async () => {
     await signOut(auth);
+    router.push("/");
   };
+
+  // Real-time Notification Polling
+  useEffect(() => {
+    let interval;
+    const fetchNotifications = async () => {
+      if (user?.email) {
+        try {
+          const res = await fetch(`/api/notifications?email=${user.email}`);
+          if (res.ok) {
+            const data = await res.json();
+            setNotifications(data);
+          }
+        } catch (error) {
+          console.error("Error fetching notifications", error);
+        }
+      }
+    };
+
+    if (user?.email) {
+      fetchNotifications(); // Initial fetch
+      interval = setInterval(fetchNotifications, 10000); // Poll every 10s
+    }
+
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md border-b border-white/5 text-white">
@@ -31,9 +65,13 @@ export default function Navbar() {
            <Link href="/contact" className="text-sm font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest">Contact</Link>
            <Link
             href="/join-as-developer"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-all text-xs font-bold text-white uppercase tracking-wider"
+            className="group relative px-4 py-2 rounded-md bg-zinc-900 overflow-hidden transition-all hover:scale-105 border border-zinc-800 hover:border-primary/50"
           >
-            Join as Dev
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            <div className="flex items-center gap-2 relative z-10">
+              <span className="text-xs font-bold uppercase tracking-widest text-zinc-300 group-hover:text-white transition-colors">Join as Dev</span>
+              <Code2 size={16} className="text-primary group-hover:rotate-12 transition-transform" />
+            </div>
           </Link>
         </div>
 
@@ -46,6 +84,56 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
 
               
+              
+               {/* Notification Bell */}
+               <div className="relative">
+                 <button 
+                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                    className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors relative"
+                 >
+                    <Bell size={20} />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-black" />
+                    )}
+                 </button>
+
+                 {isNotifOpen && (
+                   <>
+                     <div 
+                        className="fixed inset-0 z-10"
+                        onClick={() => setIsNotifOpen(false)}
+                      />
+                     <div className="absolute right-0 top-full mt-2 w-80 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden z-20 flex flex-col max-h-[400px]">
+                        <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center">
+                           <h3 className="font-bold text-sm">Notifications</h3>
+                           <span className="text-xs text-zinc-500">{unreadCount} unread</span>
+                        </div>
+                        <div className="overflow-y-auto">
+                           {notifications.length === 0 ? (
+                             <div className="p-8 text-center text-zinc-500 text-sm">
+                               No new notifications
+                             </div>
+                           ) : (
+                             notifications.map((notif, i) => (
+                               <div 
+                                 key={i} 
+                                 className={`px-4 py-3 border-b border-zinc-800/50 hover:bg-zinc-800/50 transition-colors cursor-pointer ${!notif.read ? 'bg-zinc-800/20' : ''}`}
+                                 onClick={() => {
+                                    if(notif.actionRoute) router.push(notif.actionRoute);
+                                    setIsNotifOpen(false);
+                                 }}
+                               >
+                                  <p className="text-sm text-zinc-300">{notif.message}</p>
+                                  <p className="text-xs text-zinc-600 mt-1">{new Date(notif.createdAt).toLocaleDateString()}</p>
+                               </div>
+                             ))
+                           )}
+                        </div>
+                     </div>
+                   </>
+                 )}
+               </div>
+
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-full text-zinc-300">
                 <Coins size={16} className="text-yellow-500" />
                 <span className="font-bold font-inter">{userData?.coin || 0}</span>
@@ -64,7 +152,7 @@ export default function Navbar() {
                     )}
                   </div>
                   <span className="hidden sm:block text-sm font-medium text-zinc-300 group-hover:text-white max-w-[100px] truncate">
-                    {user.displayName?.split(" ")[0] || "User"}
+                    {user?.email === "admin@taskflow.com" ? "Admin" : (userData?.name || user?.displayName || "User").split(" ")[0]}
                   </span>
                 </button>
 
@@ -76,7 +164,9 @@ export default function Navbar() {
                     />
                     <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden z-20 flex flex-col py-1">
                        <div className="px-4 py-3 border-b border-zinc-800">
-                          <p className="text-sm font-bold text-white truncate">{user.displayName || "User"}</p>
+                          <p className="text-sm font-bold text-white truncate">
+                            {user?.email === "admin@taskflow.com" ? "Admin" : (userData?.name || user?.displayName || "User")}
+                          </p>
                           <p className="text-xs text-zinc-500 truncate">{user.email}</p>
                           <div className="flex md:hidden items-center gap-2 mt-2 text-zinc-400">
                             <Coins size={14} className="text-yellow-500" />

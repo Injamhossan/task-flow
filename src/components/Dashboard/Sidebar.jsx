@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
@@ -14,7 +14,12 @@ import {
   Menu, 
   X,
   Briefcase,
-  Home
+  Home,
+  ListChecks,
+  PlusCircle,
+  ClipboardList,
+  Coins,
+  History
 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { signOut } from "firebase/auth";
@@ -23,34 +28,59 @@ import { auth } from "@/auth/firebase.config";
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, role, userData } = useAuth();
   
-  // Placeholder for role - in a real app, fetch this from your user context/db
-  const userRole = "worker"; // "admin", "buyer", "worker"
-
-  const links = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Tasks", href: "/dashboard/tasks", icon: Briefcase },
-    { name: "My Work", href: "/dashboard/my-work", icon: FileText },
-    { name: "Wallet", href: "/dashboard/wallet", icon: Wallet },
+  // Define links for each role
+  const workerLinks = [
+    { name: "Home", href: "/dashboard", icon: Home },
+    { name: "TaskList", href: "/dashboard/tasks", icon: ListChecks },
+    { name: "My Submissions", href: "/dashboard/my-work", icon: FileText },
+    { name: "Withdrawals", href: "/dashboard/withdrawals", icon: Wallet },
     { name: "Profile", href: "/dashboard/profile", icon: Users },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
+  const buyerLinks = [
+    { name: "Home", href: "/dashboard", icon: Home },
+    { name: "Add New Tasks", href: "/dashboard/add-task", icon: PlusCircle },
+    { name: "My Task's", href: "/dashboard/my-tasks", icon: ClipboardList },
+    { name: "Purchase Coin", href: "/dashboard/purchase-coin", icon: Coins },
+    { name: "Payment History", href: "/dashboard/payment-history", icon: History },
+    { name: "Profile", href: "/dashboard/profile", icon: Users },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  ];
+
+  const adminLinks = [
+    { name: "Home", href: "/dashboard", icon: Home },
+    { name: "Manage Users", href: "/dashboard/users", icon: Users },
+    { name: "Manage Task", href: "/dashboard/admin-tasks", icon: ClipboardList },
+    { name: "Profile", href: "/dashboard/profile", icon: Users },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  ];
+
+  // Select links based on role
+  let links = workerLinks;
+  if (role === "admin" || user?.email === "admin@taskflow.com") {
+    links = adminLinks;
+  } else if (role === "buyer") {
+    links = buyerLinks;
+  } else {
+    links = workerLinks;
+  }
+
+  const router = useRouter(); 
+
   const handleLogout = async () => {
     await signOut(auth);
+    router.push("/");
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-zinc-900 border-r border-zinc-800 text-white w-64">
-      <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
-         <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary text-black flex items-center justify-center rounded-sm font-bold">
-              TF
-            </div>
-            <span className="font-bold text-xl tracking-tight">TASKFLOW</span>
-         </Link>
-         <button className="lg:hidden" onClick={() => setIsOpen(false)}>
+    <div className="flex flex-col h-full bg-zinc-900 text-white w-full">
+      {/* Mobile-only close button header */}
+      <div className="lg:hidden p-4 border-b border-zinc-800 flex items-center justify-between">
+         <span className="font-bold text-xl tracking-tight px-2">MENU</span>
+         <button onClick={() => setIsOpen(false)}>
            <X size={20} />
          </button>
       </div>
@@ -93,7 +123,9 @@ export default function Sidebar() {
               )}
            </div>
            <div className="overflow-hidden">
-             <p className="text-sm font-medium truncate">{user?.displayName || "User"}</p>
+             <p className="text-sm font-medium truncate">
+               {user?.email === "admin@taskflow.com" ? "Admin" : (userData?.name || user?.displayName || "User")}
+             </p>
              <p className="text-xs text-zinc-500 truncate">{user?.email}</p>
            </div>
         </div>
@@ -111,18 +143,20 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Toggle */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
+      <div className="lg:hidden fixed top-20 left-4 z-40 bg-zinc-900 rounded-md">
         <button 
           onClick={() => setIsOpen(true)}
-          className="p-2 bg-zinc-900 border border-zinc-800 rounded-md text-white shadow-lg"
+          className="p-2 border border-zinc-800 rounded-md text-white shadow-lg"
         >
           <Menu size={24} />
         </button>
       </div>
 
       {/* Sidebar for Desktop */}
-      <div className="hidden lg:block fixed left-0 top-0 bottom-0 z-40">
-        <SidebarContent />
+      <div className="hidden lg:block w-64 shrink-0 bg-zinc-900 border-r border-zinc-800">
+        <div className="sticky top-20 h-[calc(100vh-80px)]">
+           <SidebarContent />
+        </div>
       </div>
 
       {/* Sidebar for Mobile (Drawer) */}
@@ -134,14 +168,14 @@ export default function Sidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 lg:hidden"
             />
             <motion.div 
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 20, stiffness: 100 }}
-              className="fixed left-0 top-0 bottom-0 z-50 lg:hidden"
+              className="fixed left-0 top-0 bottom-0 z-50 lg:hidden w-64"
             >
               <SidebarContent />
             </motion.div>
