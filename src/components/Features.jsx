@@ -59,7 +59,7 @@ const item = {
 
 export default function Features() {
   return (
-    <section className="bg-[#050505] py-24 px-4 sm:px-6 lg:px-8 text-white">
+    <section className="bg-[#050505] py-12 md:py-24 px-4 sm:px-6 lg:px-8 text-white">
       <div className="max-w-[1400px] mx-auto">
         
         {/* Header */}
@@ -68,12 +68,12 @@ export default function Features() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="mb-20"
+          className="mb-12 md:mb-20"
         >
-          <div className="inline-block px-3 py-3 mb-6 border border-pink-500 text-pink-500 text-xs font-bold tracking-widest uppercase">
+          <div className="inline-block px-3 py-2 md:py-3 mb-4 md:mb-6 border border-pink-500 text-pink-500 text-xs font-bold tracking-widest uppercase">
             Features
           </div>
-          <h2 className="text-5xl md:text-7xl font-bold font-inter tracking-tighter uppercase leading-[0.9] mb-6">
+          <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold font-inter tracking-tighter uppercase leading-[0.9] mb-4 md:mb-6">
             <div>Built For The</div>
             <div
               className="text-transparent"
@@ -85,7 +85,7 @@ export default function Features() {
               Modern Worker
             </div>
           </h2>
-          <p className="text-zinc-400 text-lg font-light max-w-xl">
+          <p className="text-zinc-400 text-base md:text-lg font-light max-w-xl">
             Every feature designed to maximize your earnings while minimizing effort.
           </p>
         </motion.div>
@@ -104,7 +104,7 @@ export default function Features() {
               <motion.div 
                 key={index}
                 variants={item}
-                className="group relative p-10 border-b border-r border-zinc-900/50 hover:bg-zinc-900/20 transition-colors duration-300"
+                className="group relative p-6 md:p-10 border-b border-r border-zinc-900/50 hover:bg-zinc-900/20 transition-colors duration-300"
               >
                 {/* Number Background */}
                 <div className="absolute top-6 right-8 text-[4rem] font-bold font-inter text-zinc-900/40 select-none group-hover:text-zinc-800/40 transition-colors">

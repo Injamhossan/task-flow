@@ -40,7 +40,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex flex-col items-center text-6xl font-inter tracking-tighter sm:text-7xl md:text-8xl lg:text-9xl uppercase font-primary font-bold"
+          className="flex flex-col items-center text-5xl sm:text-7xl md:text-8xl lg:text-9xl uppercase font-primary font-bold tracking-tighter"
         >
           <span className="text-white">Micro Tasks.</span>
           <span className="text-transparent" style={{ WebkitTextStroke: "2px #bfff00", color: "transparent" }}>
@@ -53,7 +53,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="max-w-2xl mt-8 text-lg font-secondary text-zinc-400 sm:text-xl"
+          className="max-w-2xl mt-8 text-base md:text-xl font-secondary text-zinc-400"
         >
           The new era of work is here. Complete simple tasks, earn real money, build your future—all from anywhere in the world.
         </motion.p>
@@ -65,12 +65,12 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="flex flex-col gap-4 mt-10 sm:flex-row"
         >
-          <button className="flex items-center gap-2 px-8 py-4 text-[18px] font-inter font-bold tracking-widest text-black uppercase bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] rounded-sm">
+          <button className="flex items-center gap-2 px-8 py-4 text-[16px] md:text-[18px] font-inter font-bold tracking-widest text-black uppercase bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] rounded-sm">
             Start Earning Now
             <ArrowRight className="w-4 h-4" />
           </button>
           
-          <button className="flex items-center gap-2 px-8 py-4 text-[18px] font-inter font-[600] tracking-widest text-white uppercase border border-zinc-800 rounded hover:bg-white hover:text-black hover:border-primary transition-all group">
+          <button className="flex items-center gap-2 px-8 py-4 text-[16px] md:text-[18px] font-inter font-[600] tracking-widest text-white uppercase border border-zinc-800 rounded hover:bg-white hover:text-black hover:border-primary transition-all group">
             <Play className="w-3 h-3 fill-white group-hover:scale-110 transition-transform" />
             Watch Demo
           </button>
@@ -81,7 +81,7 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.8 }}
-          className="grid grid-cols-2 gap-12 mt-24 md:grid-cols-4 border-t border-white/5 pt-12 mb-12 w-full max-w-4xl"
+          className="grid grid-cols-2 gap-8 md:gap-12 mt-12 md:mt-24 md:grid-cols-4 border-t border-white/5 pt-12 mb-12 w-full max-w-4xl"
         >
            {[
              { value: "50K+", label: "Active Workers" },
@@ -96,8 +96,8 @@ export default function Hero() {
                transition={{ duration: 0.5, delay: 1 + (i * 0.1) }}
                className="flex flex-col items-center"
              >
-               <span className="text-[48px] font-[600] font-inter text-primary">{stat.value}</span>
-               <span className="mt-1 text-[14px] font-inter tracking-widest text-zinc-500 uppercase">{stat.label}</span>
+               <span className="text-[32px] md:text-[48px] font-[600] font-inter text-primary">{stat.value}</span>
+               <span className="mt-1 text-[12px] md:text-[14px] font-inter tracking-widest text-zinc-500 uppercase">{stat.label}</span>
              </motion.div>
            ))}
         </motion.div>

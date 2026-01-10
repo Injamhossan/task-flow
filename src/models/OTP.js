@@ -12,7 +12,7 @@ const OTPSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 600, // 10 Minutes TTL (Time To Live) - auto delete after 10 mins
+    expires: 600,
   },
 });
 

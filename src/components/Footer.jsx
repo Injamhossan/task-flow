@@ -35,7 +35,7 @@ const item = {
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#050505] text-white pt-24 pb-12 overflow-hidden border-t border-zinc-900/50">
+    <footer className="relative bg-[#050505] text-white pt-12 md:pt-24 pb-12 overflow-hidden border-t border-zinc-900/50">
       
       {/* Background Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
@@ -56,7 +56,7 @@ export default function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-8 mb-24"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-8 mb-12 md:mb-24"
         >
           
           {/* Brand Column */}

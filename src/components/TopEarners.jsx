@@ -1,60 +1,14 @@
 "use client";
 
-import { ArrowUpRight, Star } from "lucide-react";
+import { ArrowUpRight, Star, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 
-const earners = [
-  {
-    rank: "01",
-    name: "Sarah Chen",
-    role: "Data Labeling",
-    badge: "ELITE",
-    earned: "$12,450",
-    rating: "4.98",
-    tasks: "2,847",
-    image: "https://i.pravatar.cc/150?u=sarah",
-  },
-  {
-    rank: "02",
-    name: "Marcus Johnson",
-    role: "Transcription",
-    badge: "ELITE",
-    earned: "$10,230",
-    rating: "4.95",
-    tasks: "2,156",
-    image: "https://i.pravatar.cc/150?u=marcus",
-  },
-  {
-    rank: "03",
-    name: "Aisha Patel",
-    role: "Research",
-    badge: "PRO",
-    earned: "$9,870",
-    rating: "4.92",
-    tasks: "1,923",
-    image: "https://i.pravatar.cc/150?u=aisha",
-  },
-  {
-    rank: "04",
-    name: "David Kim",
-    role: "Testing",
-    badge: "PRO",
-    earned: "$8,540",
-    rating: "4.89",
-    tasks: "1,654",
-    image: "https://i.pravatar.cc/150?u=david",
-  },
-  {
-    rank: "05",
-    name: "Lisa Thompson",
-    role: "Writing",
-    badge: "PRO",
-    earned: "$7,920",
-    rating: "4.87",
-    tasks: "1,432",
-    image: "https://i.pravatar.cc/150?u=lisa",
-  },
-];
+const fetchTopEarners = async () => {
+  const res = await fetch("/api/top-earners");
+  if (!res.ok) throw new Error("Failed to fetch");
+  return res.json();
+};
 
 const container = {
   hidden: { opacity: 0 },
@@ -72,6 +26,30 @@ const item = {
 };
 
 export default function TopEarners() {
+  const { data: earnersData = [], isLoading } = useQuery({
+    queryKey: ["top-earners"],
+    queryFn: fetchTopEarners,
+  });
+
+  const earners = earnersData.map((earner, index) => ({
+    rank: (index + 1).toString().padStart(2, "0"),
+    name: earner.name,
+    role: "Top Rated Tasker",
+    badge: index < 3 ? "ELITE" : "PRO",
+    earned: `$${(earner.totalCoins / 20).toFixed(2)}`,
+    rating: (4.5 + Math.random() * 0.5).toFixed(2),
+    tasks: earner.totalTasks,
+    image: earner.photoURL || `https://i.pravatar.cc/150?u=${earner._id}`,
+  }));
+
+  if (isLoading) {
+      return (
+          <div className="py-24 flex justify-center text-white">
+              <Loader2 className="animate-spin text-primary" size={40} />
+          </div>
+      );
+  }
+
   return (
     <section className="relative py-24 text-white overflow-hidden" id="top-workers">
       {/* Background Watermark */}
@@ -88,10 +66,10 @@ export default function TopEarners() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
-        <div className="no-scrollbar overflow-x-auto">
-          <div className="min-w-[1000px]">
+        <div className="w-full">
+          <div className="w-full">
              {/* Header */}
-            <div className="mb-12 flex items-end justify-between">
+            <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-0">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -127,57 +105,65 @@ export default function TopEarners() {
               viewport={{ once: true, margin: "-100px" }}
               className="border-t border-white/10"
             >
-              {earners.map((earner) => (
-                <motion.div
-                  key={earner.rank}
-                  variants={item}
-                  className="group grid grid-cols-12 items-center border-b border-white/10 py-6 hover:bg-white/5 transition-colors px-4"
-                >
-                  <div className="col-span-5 flex items-center gap-8">
-                    <span className="font-primary text-3xl font-bold text-zinc-700 group-hover:text-zinc-500 transition-colors">
-                      {earner.rank}
-                    </span>
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 overflow-hidden rounded-full bg-zinc-800">
-                        <img src={earner.image} alt={earner.name} className="h-full w-full object-cover" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-primary">{earner.name}</h3>
-                          <span className={`px-1.5 py-0.5 text-[14px] font-bold uppercase tracking-wider ${earner.badge === 'ELITE' ? 'bg-primary text-black' : 'bg-pink-500 text-white'}`}>
-                            {earner.badge}
-                          </span>
+              {earners.length > 0 ? (
+                earners.map((earner) => (
+                  <motion.div
+                    key={earner.rank}
+                    variants={item}
+                    className="group relative flex flex-col md:grid md:grid-cols-12 items-start md:items-center border-b border-white/10 py-6 hover:bg-white/5 transition-colors px-4 gap-4 md:gap-0"
+                  >
+                    <div className="md:col-span-5 flex items-center gap-4 md:gap-8 w-full">
+                      <span className="font-primary text-3xl font-bold text-zinc-700 group-hover:text-zinc-500 transition-colors">
+                        {earner.rank}
+                      </span>
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-zinc-800">
+                          <img src={earner.image} alt={earner.name} className="h-full w-full object-cover" />
                         </div>
-                        <p className="text-sm font-primary text-zinc-400">{earner.role}</p>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-primary">{earner.name}</h3>
+                            <span className={`px-1.5 py-0.5 text-[14px] font-bold uppercase tracking-wider ${earner.badge === 'ELITE' ? 'bg-primary text-black' : 'bg-pink-500 text-white'}`}>
+                              {earner.badge}
+                            </span>
+                          </div>
+                          <p className="text-sm font-primary text-zinc-400">{earner.role}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="col-span-2 flex flex-col items-center">
-                    <div className="text-xl font-bold text-primary">{earner.earned}</div>
-                    <div className="text-[12px] font-bold uppercase tracking-widest text-zinc-500">Earned</div>
-                  </div>
+                    <div className="flex w-full items-center justify-between md:contents">
+                      <div className="md:col-span-2 flex flex-col items-center md:items-center">
+                        <div className="text-xl font-bold text-primary">{earner.earned}</div>
+                        <div className="text-[12px] font-bold uppercase tracking-widest text-zinc-500">Earned</div>
+                      </div>
 
-                  <div className="col-span-2 flex flex-col items-center">
-                    <div className="flex items-center gap-1 text-xl font-bold">
-                      <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                      {earner.rating}
+                      <div className="md:col-span-2 flex flex-col items-center md:items-center">
+                        <div className="flex items-center gap-1 text-xl font-bold">
+                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                          {earner.rating}
+                        </div>
+                        <div className="text-[12px] font-inter uppercase tracking-widest text-zinc-500">Rating</div>
+                      </div>
+
+                      <div className="md:col-span-2 flex flex-col items-center md:items-center">
+                        <div className="text-xl font-bold">{earner.tasks}</div>
+                        <div className="text-[12px] font-inter uppercase tracking-widest text-zinc-500">Tasks</div>
+                      </div>
                     </div>
-                    <div className="text-[12px] font-inter uppercase tracking-widest text-zinc-500">Rating</div>
-                  </div>
 
-                  <div className="col-span-2 flex flex-col items-center">
-                    <div className="text-xl font-bold">{earner.tasks}</div>
-                    <div className="text-[12px] font-inter uppercase tracking-widest text-zinc-500">Tasks</div>
-                  </div>
-
-                  <div className="col-span-1 flex justify-end">
-                     <div className="flex h-10 w-10 items-center justify-center border border-white/10 transition-colors group-hover:border-white/20 group-hover:bg-white/5">
-                      <ArrowUpRight className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
-                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="absolute top-6 right-4 md:relative md:top-auto md:right-auto md:col-span-1 flex justify-end">
+                       <div className="flex h-10 w-10 items-center justify-center border border-white/10 transition-colors group-hover:border-white/20 group-hover:bg-white/5">
+                        <ArrowUpRight className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
+                       </div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                 <div className="py-12 text-center text-zinc-500">
+                    No top earners found yet.
+                 </div>
+              )}
             </motion.div>
           </div>
         </div>

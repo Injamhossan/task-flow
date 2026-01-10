@@ -66,7 +66,8 @@ export default function MyWorkPage() {
       </div>
 
       {/* Table/List */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+      {/* Table/List */}
+      <div className="hidden md:block bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-zinc-950 text-zinc-400 uppercase tracking-wider font-semibold border-b border-zinc-800">
@@ -113,6 +114,41 @@ export default function MyWorkPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {currentItems.length > 0 ? (
+          currentItems.map((sub) => (
+            <div key={sub._id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3">
+              <div className="flex justify-between items-start gap-4">
+                <h3 className="font-medium text-white truncate flex-1">{sub.task_title}</h3>
+                 <span className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                  sub.status === 'approved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                  sub.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
+                  'bg-red-500/10 text-red-500 border border-red-500/20'
+                }`}>
+                  {sub.status === 'approved' && <CheckCircle size={12} />}
+                  {sub.status === 'pending' && <Clock size={12} />}
+                  {sub.status === 'rejected' && <XCircle size={12} />}
+                  {sub.status}
+                </span>
+              </div>
+              
+              <div className="flex justify-between items-center text-sm text-zinc-400 border-t border-zinc-800 pt-3">
+                 <span>{new Date(sub.createdAt).toLocaleDateString()}</span>
+                 <div className="flex items-center gap-1 text-zinc-300 font-bold bg-zinc-950 px-2 py-1 rounded border border-zinc-800">
+                    {sub.payable_amount}
+                    <Coins size={14} className="text-yellow-500" />
+                 </div>
+              </div>
+            </div>
+          ))
+        ) : (
+           <div className="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-xl">
+             No submissions found in this category.
+           </div>
+        )}
       </div>
 
       {/* Pagination Controls */}

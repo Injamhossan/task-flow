@@ -13,10 +13,8 @@ export async function POST(request) {
     // Generate OTP
     const otp = otpGenerator.generate(6, { digits: true, upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false });
 
-    // 1. Delete any existing otp for this email prompt (Direct DB)
     await mongoose.connection.db.collection("otp").deleteMany({ email });
 
-    // 2. Create new OTP entry (Direct DB)
     const result = await mongoose.connection.db.collection("otp").insertOne({
         email,
         otp,
@@ -62,16 +60,14 @@ export async function PUT(request) {
         return NextResponse.json({ message: "Invalid or Expired OTP" }, { status: 400 });
     }
 
-    // Check Expiry (10 mins) manually in code since we are skipping Mongoose Schema validation
     const now = new Date();
     const otpTime = new Date(otpRecord.createdAt);
-    const diff = (now - otpTime) / 1000 / 60; // difference in minutes
+    const diff = (now - otpTime) / 1000 / 60;
 
     if (diff > 10) {
          return NextResponse.json({ message: "OTP Expired" }, { status: 400 });
     }
 
-    // 2. If valid, update User status (Direct DB to be safe)
     const updateResult = await mongoose.connection.db.collection("users").updateOne(
         { email },
         { $set: { verified: true } }

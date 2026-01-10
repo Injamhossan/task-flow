@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Zap, Coins, User as UserIcon, LayoutDashboard, LogOut, Code2, Bell, BadgeCheck } from "lucide-react";
+import { Zap, Coins, User as UserIcon, LayoutDashboard, LogOut, Code2, Bell, BadgeCheck, Menu, X } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
@@ -14,6 +14,7 @@ export default function Navbar() {
   const { user, loading, userData } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // const [notifications, setNotifications] = useState([]); // Removed state
 
   const router = useRouter();
@@ -54,15 +55,24 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md border-b border-white/5 text-white">
       <div className="flex items-center justify-between w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {/* ... (Logo and links remain same) ... */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="flex items-center justify-center w-10 h-10 rounded-sm bg-primary text-black transition-transform group-hover:scale-105">
-            <Zap className="w-6 h-6 fill-current" />
-          </div>
-          <span className="text-xl font-bold tracking-wide text-white font-primary">TASKFLOW</span>
-        </Link>
+        {/* Left Side: Logo & Mobile Menu Button */}
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-zinc-400 hover:text-white"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+          
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="flex items-center justify-center w-10 h-10 rounded-sm bg-primary text-black transition-transform group-hover:scale-105">
+              <Zap className="w-6 h-6 fill-current" />
+            </div>
+            <span className="text-xl font-bold tracking-wide text-white font-primary hidden sm:block">TASKFLOW</span>
+          </Link>
+        </div>
         
-        {/* Centered Navigation */}
+        {/* Centered Navigation (Desktop) */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center gap-8">
            <Link href="/about" className="text-sm font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest">About</Link>
            <Link href="/contact" className="text-sm font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest">Contact</Link>
@@ -78,6 +88,7 @@ export default function Navbar() {
           </Link>
         </div>
 
+        {/* Right Side: Auth & Profile */}
         <div className="flex items-center gap-6">
           {loading ? (
              <div className="w-20 h-10 bg-zinc-900 animate-pulse rounded-sm" />
@@ -249,13 +260,13 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <Link
                 href="/login"
-                className="text-[14px] font-[600] font-inter tracking-widest text-white hover:text-primary transition-colors uppercase"
+                className="hidden sm:block text-[14px] font-[600] font-inter tracking-widest text-white hover:text-primary transition-colors uppercase"
               >
                 Login
               </Link>
               <Link
                 href="/register"
-                className="px-6 py-2.5 text-[14px] font-[600] font-inter tracking-widest text-black bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                className="hidden sm:block px-6 py-2.5 text-[14px] font-[600] font-inter tracking-widest text-black bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
               >
                 Register
               </Link>
@@ -263,6 +274,54 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-40 bg-zinc-950 flex flex-col pt-24 px-6 animate-in slide-in-from-top-10 fade-in-0 duration-200">
+           <div className="flex flex-col gap-6 text-center">
+             <Link 
+               href="/about" 
+               onClick={() => setIsMobileMenuOpen(false)}
+               className="text-2xl font-bold text-zinc-400 hover:text-white uppercase tracking-widest"
+             >
+               About
+             </Link>
+             <Link 
+               href="/contact" 
+               onClick={() => setIsMobileMenuOpen(false)}
+               className="text-2xl font-bold text-zinc-400 hover:text-white uppercase tracking-widest"
+             >
+               Contact
+             </Link>
+             <Link 
+               href="/join-as-developer" 
+               onClick={() => setIsMobileMenuOpen(false)}
+               className="text-2xl font-bold text-zinc-400 hover:text-white uppercase tracking-widest"
+             >
+               Join as Developer
+             </Link>
+
+             {!user && (
+               <div className="flex flex-col gap-4 mt-8 border-t border-zinc-800 pt-8">
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-4 text-center text-lg font-[600] font-inter tracking-widest text-white border border-zinc-800 uppercase"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-4 text-center text-lg font-[600] font-inter tracking-widest text-black bg-primary uppercase"
+                  >
+                    Register
+                  </Link>
+               </div>
+             )}
+           </div>
+        </div>
+      )}
     </nav>
   );
 }

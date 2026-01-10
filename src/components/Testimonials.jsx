@@ -62,17 +62,17 @@ export default function Testimonials() {
   };
 
   return (
-    <section className="bg-[#050505] py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="bg-[#050505] py-12 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-[1400px] mx-auto">
         
         {/* Header */}
-        <div className="text-center mb-20 space-y-6">
+        <div className="text-center mb-12 md:mb-20 space-y-4 md:space-y-6">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="inline-block px-3 py-3 border border-primary/20 bg-primary/5 text-primary text-[10px] font-bold tracking-[0.2em] uppercase"
+            className="inline-block px-3 py-2 md:py-3 border border-primary/20 bg-primary/5 text-primary text-[10px] font-bold tracking-[0.2em] uppercase"
           >
             Testimonials
           </motion.div>
@@ -82,7 +82,7 @@ export default function Testimonials() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl md:text-7xl font-black font-inter tracking-tighter uppercase leading-[0.9]"
+            className="text-3xl sm:text-5xl md:text-7xl font-black font-inter tracking-tighter uppercase leading-[0.9]"
           >
             <span className="block text-white">Real People.</span>
             <span 
@@ -101,7 +101,7 @@ export default function Testimonials() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-zinc-500 text-lg font-light"
+            className="text-zinc-500 text-sm md:text-lg font-light max-w-lg mx-auto md:max-w-none"
           >
             Don't just take our word for it. Here's what our community says.
           </motion.p>
@@ -115,19 +115,19 @@ export default function Testimonials() {
           transition={{ duration: 0.8 }}
           className="relative max-w-4xl mx-auto"
         >
-          <div className="relative bg-[#0A0A0A] border border-zinc-900 p-8 md:p-16 rounded-sm">
+          <div className="relative bg-[#0A0A0A] border border-zinc-900 p-6 md:p-16 rounded-sm">
             
              {/* Quote Icon */}
-             <div className="mb-8">
+             <div className="mb-6 md:mb-8">
                <Quote 
-                 className="w-12 h-12 text-transparent" 
+                 className="w-8 h-8 md:w-12 md:h-12 text-transparent" 
                  strokeWidth={1}
                  style={{ stroke: "#bfff00" }}
                />
              </div>
 
             {/* Content Transition */}
-            <div className="min-h-[300px] flex flex-col justify-between overflow-hidden">
+            <div className="min-h-[250px] md:min-h-[300px] flex flex-col justify-between overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentIndex}
@@ -135,9 +135,9 @@ export default function Testimonials() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.4 }}
-                  className="space-y-8"
+                  className="space-y-6 md:space-y-8"
                 >
-                  <p className="text-2xl md:text-3xl font-medium text-zinc-100 leading-relaxed font-inter">
+                  <p className="text-xl md:text-3xl font-medium text-zinc-100 leading-relaxed font-inter">
                     "{testimonials[currentIndex].quote}"
                   </p>
 

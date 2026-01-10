@@ -56,7 +56,7 @@ const rightItem = {
 
 export default function ReadyToEarn() {
   return (
-    <section className="relative bg-primary text-black py-24 overflow-hidden border-t border-black">
+    <section className="relative bg-primary text-black py-12 md:py-24 overflow-hidden border-t border-black">
       {/* Grid Pattern Background */}
       <div 
         className="absolute inset-0 opacity-[0.03]"
@@ -70,18 +70,18 @@ export default function ReadyToEarn() {
       <motion.div 
         animate={{ rotate: 360 }}
         transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-        className="absolute top-20 -left-10 w-32 h-32 border border-black/10 rotate-12 bg-transparent pointer-events-none" 
+        className="absolute top-20 -left-10 w-20 h-20 md:w-32 md:h-32 border border-black/10 rotate-12 bg-transparent pointer-events-none" 
       />
       
       {/* Floating Cube Decoration - Right */}
       <motion.div 
         animate={{ rotate: -360 }}
         transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-20 -right-10 w-40 h-40 border border-black/10 -rotate-12 bg-transparent pointer-events-none" 
+        className="absolute bottom-20 -right-10 w-24 h-24 md:w-40 md:h-40 border border-black/10 -rotate-12 bg-transparent pointer-events-none" 
       />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center">
           
           {/* Left Column - Content */}
           <motion.div 
@@ -89,7 +89,7 @@ export default function ReadyToEarn() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-100px" }}
-            className="space-y-8"
+            className="space-y-6 md:space-y-8"
           >
             {/* Badge */}
             <motion.div variants={leftItem} className="inline-flex items-center gap-2 px-3 py-3 border border-black/20 bg-black/5 text-xs font-bold uppercase tracking-wider w-fit">
@@ -98,7 +98,7 @@ export default function ReadyToEarn() {
             </motion.div>
 
             {/* Headline */}
-            <motion.h2 variants={leftItem} className="text-6xl md:text-8xl font-black font-inter tracking-tighter leading-[0.9] uppercase">
+            <motion.h2 variants={leftItem} className="text-4xl sm:text-6xl md:text-8xl font-black font-inter tracking-tighter leading-[0.9] uppercase">
               Ready to
               <br />
               Start
@@ -107,19 +107,19 @@ export default function ReadyToEarn() {
             </motion.h2>
 
             {/* Description */}
-            <motion.p variants={leftItem} className="text-xl md:text-2xl font-medium max-w-lg leading-relaxed opacity-80">
+            <motion.p variants={leftItem} className="text-lg md:text-2xl font-medium max-w-lg leading-relaxed opacity-80">
               Join 50,000+ workers who are already earning on TaskFlow. Sign up takes less than 2 minutes.
             </motion.p>
 
             {/* Features List */}
-            <motion.div variants={leftItem} className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
+            <motion.div variants={leftItem} className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 max-w-lg">
               {[
                 "No experience required",
                 "Work from anywhere",
                 "Instant payouts",
                 "24/7 support"
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 font-semibold">
+                <div key={i} className="flex items-center gap-2 font-semibold text-sm md:text-base">
                   <div className="p-0.5 rounded-full border border-black">
                     <Check className="w-3 h-3" strokeWidth={3} />
                   </div>
@@ -129,13 +129,13 @@ export default function ReadyToEarn() {
             </motion.div>
 
             {/* CTA Buttons */}
-            <motion.div variants={leftItem} className="flex flex-col sm:flex-row gap-4 pt-4">
-              <button className="group relative px-8 py-4 bg-black text-white font-bold text-lg uppercase tracking-wider overflow-hidden hover:bg-zinc-900 transition-all flex items-center justify-center gap-2">
+            <motion.div variants={leftItem} className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4">
+              <button className="group relative px-6 py-3 md:px-8 md:py-4 bg-black text-white font-bold text-base md:text-lg uppercase tracking-wider overflow-hidden hover:bg-zinc-900 transition-all flex items-center justify-center gap-2">
                 <span>Create Free Account</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button className="px-8 py-4 bg-transparent border-2 border-black text-black font-bold text-lg uppercase tracking-wider hover:bg-black hover:text-white transition-all">
+              <button className="px-6 py-3 md:px-8 md:py-4 bg-transparent border-2 border-black text-black font-bold text-base md:text-lg uppercase tracking-wider hover:bg-black hover:text-white transition-all">
                 I Have An Account
               </button>
             </motion.div>
