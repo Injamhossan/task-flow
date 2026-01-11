@@ -6,7 +6,7 @@ import { auth } from "@/auth/firebase.config";
 import { useRouter } from "next/navigation";
 import { MoveLeft, Zap, Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +19,8 @@ export default function RegisterPage() {
     password: "",
     role: "worker",
   });
+  const [showGoogleRoleModal, setShowGoogleRoleModal] = useState(false);
+  const [googleUser, setGoogleUser] = useState(null);
 
   const handleGoogleRegister = async () => {
     setIsLoading(true);
@@ -27,30 +29,54 @@ export default function RegisterPage() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      const token = await user.getIdToken();
+      
+      // Check if user exists in DB first
+      const checkRes = await fetch(`/api/users?email=${user.email}`);
+      
+      if (checkRes.ok) {
+         // User exists, just login
+         const token = await user.getIdToken();
+         localStorage.setItem("access-token", token);
+         router.push("/dashboard");
+      } else {
+         // User is new! Show role selection modal
+         setGoogleUser(user);
+         setIsLoading(false); // Stop globally loading to show modal
+         setShowGoogleRoleModal(true);
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Failed to register with Google.");
+      setIsLoading(false);
+    }
+  };
+
+  const completeGoogleRegistration = async (selectedRole) => {
+    if (!googleUser) return;
+    setIsLoading(true); // Start loading again
+    try {
+      const token = await googleUser.getIdToken();
       localStorage.setItem("access-token", token);
       
-      // Save user to MongoDB with selected role
       await fetch('/api/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          role: formData.role, 
+          name: googleUser.displayName,
+          email: googleUser.email,
+          photoURL: googleUser.photoURL,
+          role: selectedRole, 
         }),
       });
 
       router.push("/dashboard");
     } catch (error) {
       console.error(error);
-      setError("Failed to register with Google.");
-    } finally {
+      setError("Failed to complete registration.");
       setIsLoading(false);
-    }
+    } 
   };
 
   const handleRegister = async (e) => {
@@ -377,6 +403,57 @@ export default function RegisterPage() {
         </div>
       </div>
 
+
+      
+      {/* Google Role Selection Modal */}
+      <AnimatePresence>
+        {showGoogleRoleModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-zinc-900 border border-zinc-800 p-8 rounded-lg max-w-md w-full relative overflow-hidden"
+            >
+               {/* Background Glow */}
+               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+               <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+               <h2 className="text-2xl font-bold font-inter text-white mb-2 relative z-10">Select Your Role</h2>
+               <p className="text-zinc-400 mb-6 relative z-10">How would you like to use TaskFlow?</p>
+               
+               <div className="grid grid-cols-1 gap-4 relative z-10">
+                  <button 
+                    onClick={() => completeGoogleRegistration("worker")}
+                    className="p-4 rounded-lg border border-zinc-800 bg-zinc-950/50 hover:bg-zinc-800 hover:border-primary/50 hover:text-white group transition-all text-left"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-lg text-zinc-200 group-hover:text-primary transition-colors">I am a Worker</span>
+                      <Zap className="w-5 h-5 text-zinc-500 group-hover:text-primary transition-colors" />
+                    </div>
+                    <p className="text-xs text-zinc-500 group-hover:text-zinc-400">I want to complete tasks and earn money.</p>
+                  </button>
+                  
+                  <button 
+                    onClick={() => completeGoogleRegistration("buyer")}
+                    className="p-4 rounded-lg border border-zinc-800 bg-zinc-950/50 hover:bg-zinc-800 hover:border-blue-500/50 hover:text-white group transition-all text-left"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-lg text-zinc-200 group-hover:text-blue-400 transition-colors">I am a Buyer</span>
+                      <User className="w-5 h-5 text-zinc-500 group-hover:text-blue-400 transition-colors" />
+                    </div>
+                    <p className="text-xs text-zinc-500 group-hover:text-zinc-400">I want to post tasks and get work done.</p>
+                  </button>
+               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

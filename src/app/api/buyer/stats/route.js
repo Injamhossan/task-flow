@@ -15,18 +15,11 @@ export async function GET(request) {
 
   try {
     await dbConnect();
-
-    // 1. Total Task Count
     const totalTasks = await Task.countDocuments({ buyer_email: email });
 
-    // 2. Pending Task (Sum of required_workers of HIS added tasks)
-    // "pending Task( sum of all required_workers count of his added Tasks)"
-    // The user phrasing is a bit ambiguous: "pending Task" usually means submissions, but "sum of required_workers" implies remaining slots.
-    // I will interpret this as "Total Worker Slots Pending to be Filled" -> sum of required_workers
     const tasks = await Task.find({ buyer_email: email });
     const pendingTaskCount = tasks.reduce((sum, task) => sum + (task.required_workers || 0), 0);
 
-    // 3. Total Payment Paid (Sum of payments by this user)
     const payments = await Payment.find({ user_email: email });
     const totalPayment = payments.reduce((sum, pay) => sum + (pay.amount || 0), 0);
 
