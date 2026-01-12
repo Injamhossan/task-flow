@@ -3,9 +3,11 @@
 import { Zap, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
+import Link from "next/link";
+
 const FooterLink = ({ href, children }) => (
   <li>
-    <a 
+    <Link 
       href={href} 
       className="group flex items-center gap-1 text-sm text-zinc-400 hover:text-primary transition-colors duration-300 w-fit"
     >
@@ -14,7 +16,7 @@ const FooterLink = ({ href, children }) => (
         size={14} 
         className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
       />
-    </a>
+    </Link>
   </li>
 );
 
@@ -76,8 +78,13 @@ export default function Footer() {
           <motion.div variants={item} className="lg:col-span-1">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-6">Platform</h4>
             <ul className="space-y-4">
-              {['How It Works', 'Pricing', 'FAQs', 'API'].map((item) => (
-                <FooterLink key={item} href="#">{item}</FooterLink>
+              {[
+                { name: 'How It Works', href: '/how-it-works' },
+                { name: 'Pricing', href: '/pricing' },
+                { name: 'FAQs', href: '/faqs' },
+                { name: 'API', href: '/api-docs' }
+              ].map((item) => (
+                <FooterLink key={item.name} href={item.href}>{item.name}</FooterLink>
               ))}
             </ul>
           </motion.div>
@@ -85,8 +92,13 @@ export default function Footer() {
           <motion.div variants={item} className="lg:col-span-1">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-6">Company</h4>
             <ul className="space-y-4">
-              {['About', 'Careers', 'Blog', 'Press'].map((item) => (
-                <FooterLink key={item} href="#">{item}</FooterLink>
+              {[
+                { name: 'About', href: '/about' },
+                { name: 'Careers', href: '/careers' },
+                { name: 'Blog', href: '/blog' },
+                { name: 'Press', href: '/press' }
+              ].map((item) => (
+                <FooterLink key={item.name} href={item.href}>{item.name}</FooterLink>
               ))}
             </ul>
           </motion.div>
@@ -94,8 +106,13 @@ export default function Footer() {
           <motion.div variants={item} className="lg:col-span-1">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-6">Legal</h4>
             <ul className="space-y-4">
-              {['Privacy', 'Terms', 'Cookies', 'Licenses'].map((item) => (
-                <FooterLink key={item} href="#">{item}</FooterLink>
+              {[
+                { name: 'Privacy', href: '/privacy' },
+                { name: 'Terms', href: '/terms' },
+                { name: 'Cookies', href: '/cookies' },
+                { name: 'Licenses', href: '/licenses' }
+              ].map((item) => (
+                <FooterLink key={item.name} href={item.href}>{item.name}</FooterLink>
               ))}
             </ul>
           </motion.div>
