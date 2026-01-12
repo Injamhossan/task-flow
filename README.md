@@ -1,6 +1,6 @@
 # ⚡ TaskFlow - Micro-Tasking Platform
 
-![TaskFlow Banner](https://img.shields.io/badge/TaskFlow-v2.0-bfff00?style=for-the-badge&logoColor=black&labelColor=black)
+![TaskFlow Banner](https://i.ibb.co.com/6cFYTYBN/image.png)
 
 **TaskFlow** is a modern, full-stack micro-tasking platform that connects businesses ("Buyers") with a global workforce ("Workers"). Buyers post simple tasks, and Workers earn real money by completing them. The platform features role-based dashboards, secure payments, and a real-time leaderboard system.
 
