@@ -32,6 +32,14 @@ export async function POST(request) {
       status: "pending",
     });
 
+    // Notify Admin
+    await Notification.create({
+      message: `New withdrawal request from ${body.worker_name} for $${body.withdrawal_amount}`,
+      toEmail: "admin@taskflow.com",
+      actionRoute: "/dashboard/admin-withdrawals",
+      time: new Date()
+    });
+
     // Optionally Deduct Coins immediately or Hold them.
     // Assuming immediate deduction for better UX (coins gone, money pending)
     await User.findOneAndUpdate(
@@ -47,10 +55,18 @@ export async function POST(request) {
 
 export async function PATCH(request) {
   try {
-    const { id, action } = await request.json(); // id, action='approve'
+    const { id, action } = await request.json(); // id, action='approve' | 'reject'
     await dbConnect();
 
     const withdrawal = await Withdrawal.findById(id);
+
+    if (!withdrawal) {
+      return NextResponse.json({ message: "Withdrawal not found" }, { status: 404 });
+    }
+
+    if (withdrawal.status !== 'pending') {
+        return NextResponse.json({ message: "Request already processed" }, { status: 400 });
+    }
 
     if (action === "approve") {
       withdrawal.status = "approved";
@@ -58,30 +74,34 @@ export async function PATCH(request) {
 
       // Notify Worker
       await Notification.create({
-        message: `Your withdrawal request for $${withdrawal.withdrawal_amount} has been approved by admin`,
+        message: `Your withdrawal request for $${withdrawal.withdrawal_amount} has been approved.`,
         toEmail: withdrawal.worker_email,
-        actionRoute: "/dashboard/withdrawals", // Or wallet
+        actionRoute: "/dashboard/worker-home",
         time: new Date()
       });
 
-      // Send Email
-      await sendEmail({
-        to: withdrawal.worker_email,
-        subject: "Withdrawal Approved - TaskFlow",
-        html: `
-          <div style="font-family: Arial, sans-serif;">
-            <h2>Withdrawal Approved</h2>
-            <p>Great news! Your withdrawal request for <strong>$${withdrawal.withdrawal_amount}</strong> has been processed and approved.</p>
-            <p>Funds will be transferred to your ${withdrawal.payment_system} account (${withdrawal.account_number}) shortly.</p>
-            <br/>
-            <p>Keep earning!</p>
-          </div>
-        `
-      });
+    } else if (action === "reject") {
+        withdrawal.status = "rejected";
+        await withdrawal.save();
+
+        // Refund Coins
+        await User.findOneAndUpdate(
+            { email: withdrawal.worker_email },
+            { $inc: { coin: withdrawal.withdrawal_coin } }
+        );
+
+        // Notify Worker
+        await Notification.create({
+            message: `Your withdrawal request for $${withdrawal.withdrawal_amount} was rejected. Coins have been refunded.`,
+            toEmail: withdrawal.worker_email,
+            actionRoute: "/dashboard/worker-home",
+            time: new Date()
+        });
     }
 
-    return NextResponse.json({ message: "Success" });
+    return NextResponse.json({ message: "Success", withdrawal });
   } catch (error) {
+     console.error(error);
      return NextResponse.json({ message: "Server Error" }, { status: 500 });  
   }
 }

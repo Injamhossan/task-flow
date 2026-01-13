@@ -9,7 +9,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/auth/firebase.config";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function Navbar() {
@@ -17,7 +17,8 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // const [notifications, setNotifications] = useState([]); // Removed state
+  const pathname = usePathname();
+
 
   const router = useRouter();
   
@@ -54,7 +55,7 @@ export default function Navbar() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  return (
+  return pathname?.startsWith('/dashboard') ? null : (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md border-b border-white/5 text-white">
       <div className="flex items-center justify-between w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Left Side: Logo & Mobile Menu Button */}

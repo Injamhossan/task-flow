@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }) {
       <Sidebar />
       
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 pt-20 lg:pt-8 min-h-screen">
+      <main className="flex-1 p-4 md:p-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>

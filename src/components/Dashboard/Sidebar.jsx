@@ -56,6 +56,7 @@ export default function Sidebar() {
     { name: "Manage Users", href: "/dashboard/users", icon: Users },
     { name: "Manage Task", href: "/dashboard/admin-tasks", icon: ClipboardList },
     { name: "Manage Blogs", href: "/dashboard/manage-blogs", icon: FileText },
+    { name: "Withdrawals", href: "/dashboard/admin-withdrawals", icon: Coins },
     { name: "Profile", href: "/dashboard/profile", icon: Users },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
@@ -78,16 +79,25 @@ export default function Sidebar() {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-zinc-900 text-white w-full">
-      {/* Mobile-only close button header */}
-      <div className="lg:hidden p-4 border-b border-zinc-800 flex items-center justify-between">
-         <span className="font-bold text-xl tracking-tight px-2">MENU</span>
-         <button onClick={() => setIsOpen(false)}>
-           <X size={20} />
+    <div className="flex flex-col h-full bg-zinc-900 text-white w-full border-r border-zinc-800">
+      {/* Logo Section - Fixed at top */}
+      <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+         <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-black text-black">
+               T
+            </div>
+            <span className="text-xl font-bold font-primary tracking-wide text-white group-hover:text-primary transition-colors">
+               TASKFLOW
+            </span>
+         </Link>
+         {/* Close button for mobile */}
+         <button onClick={() => setIsOpen(false)} className="lg:hidden text-zinc-400">
+           <X size={24} />
          </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+      {/* Scrollable Nav Links */}
+      <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
         {links.map((link) => {
           const Icon = link.icon;
           const isActive = pathname === link.href;
@@ -115,7 +125,8 @@ export default function Sidebar() {
         })}
       </div>
 
-      <div className="p-4 border-t border-zinc-800">
+      {/* Footer Section - Fixed at bottom */}
+      <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-4 px-2">
            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border border-zinc-700">
               {user?.photoURL ? (
@@ -156,7 +167,7 @@ export default function Sidebar() {
 
       {/* Sidebar for Desktop */}
       <div className="hidden lg:block w-64 shrink-0 bg-zinc-900 border-r border-zinc-800">
-        <div className="sticky top-20 h-[calc(100vh-80px)]">
+        <div className="sticky top-0 h-screen">
            <SidebarContent />
         </div>
       </div>

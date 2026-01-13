@@ -53,9 +53,15 @@ export default function WorkerDashboard({ user, userData }) {
           <h1 className="text-3xl font-bold font-inter tracking-tight">Worker Dashboard</h1>
           <p className="text-zinc-400 mt-1">Start working and earning coins.</p>
         </div>
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 flex items-center gap-3">
-             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-             <span className="text-sm font-medium text-zinc-300">Status: Active</span>
+        <div className="flex items-center gap-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 flex items-center gap-2 text-yellow-500 font-bold">
+            <span className="text-xl">{userData?.coin || 0}</span>
+            <span className="text-sm">Coins</span>
+          </div>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-sm font-medium text-zinc-300">Status: Active</span>
+          </div>
         </div>
       </div>
 

@@ -2,13 +2,20 @@
 
 import { ArrowUpRight, Star, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, gql } from "@apollo/client";
 
-const fetchTopEarners = async () => {
-  const res = await fetch("/api/top-earners");
-  if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
-};
+const GET_TOP_EARNERS = gql`
+  query GetTopEarners {
+    topEarners {
+      _id
+      name
+      role
+      coin
+      totalTasks
+      photoURL
+    }
+  }
+`;
 
 const container = {
   hidden: { opacity: 0 },
@@ -26,27 +33,49 @@ const item = {
 };
 
 export default function TopEarners() {
-  const { data: earnersData = [], isLoading } = useQuery({
-    queryKey: ["top-earners"],
-    queryFn: fetchTopEarners,
-  });
+  const { data, loading: isLoading } = useQuery(GET_TOP_EARNERS);
 
-  const earners = earnersData.map((earner, index) => ({
+  const earners = data?.topEarners?.map((earner, index) => ({
     rank: (index + 1).toString().padStart(2, "0"),
     name: earner.name,
     role: "Top Rated Tasker",
     badge: index < 3 ? "ELITE" : "PRO",
-    earned: `$${(earner.totalCoins / 20).toFixed(2)}`,
+    earned: `$${(earner.coin / 20).toFixed(2)}`,
     rating: (4.5 + Math.random() * 0.5).toFixed(2),
-    tasks: earner.totalTasks,
+    tasks: earner.totalTasks || 0, // Fallback if 0 or undefined
     image: earner.photoURL || `https://i.pravatar.cc/150?u=${earner._id}`,
-  }));
+  })) || [];
 
   if (isLoading) {
       return (
-          <div className="py-24 flex justify-center text-white">
-              <Loader2 className="animate-spin text-primary" size={40} />
-          </div>
+        <section className="relative py-24 text-white overflow-hidden">
+             <div className="relative z-10 mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
+                 <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-0">
+                    <div className="space-y-4">
+                        <div className="h-4 w-32 bg-zinc-800 rounded animate-pulse" />
+                        <div className="h-12 w-64 bg-zinc-800 rounded animate-pulse" />
+                    </div>
+                 </div>
+                 <div className="w-full space-y-4 border-t border-white/10 pt-8">
+                     {[...Array(6)].map((_, i) => (
+                         <div key={i} className="w-full h-24 bg-zinc-900/30 border border-white/5 rounded-xl overflow-hidden relative">
+                             <div className="flex items-center h-full px-6 gap-6">
+                                 <div className="h-12 w-12 rounded-full bg-zinc-800/50" />
+                                 <div className="space-y-2 flex-1">
+                                    <div className="h-4 w-48 bg-zinc-800/50 rounded" />
+                                    <div className="h-3 w-32 bg-zinc-800/30 rounded" />
+                                 </div>
+                             </div>
+                             <motion.div
+                                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+                                 animate={{ x: ['-100%', '100%'] }}
+                                 transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                             />
+                         </div>
+                     ))}
+                 </div>
+             </div>
+        </section>
       );
   }
 

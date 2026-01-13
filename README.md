@@ -1,6 +1,6 @@
 # ⚡ TaskFlow - Micro-Tasking Platform
 
-![TaskFlow Banner](https://i.ibb.co.com/6cFYTYBN/image.png)
+![TaskFlow Banner](https://i.ibb.co/6cFYTYBN/image.png)
 
 **TaskFlow** is a modern, full-stack micro-tasking platform that connects businesses ("Buyers") with a global workforce ("Workers"). Buyers post simple tasks, and Workers earn real money by completing them. The platform features role-based dashboards, secure payments, and a real-time leaderboard system.
 
@@ -8,9 +8,9 @@
 
 ## 🚀 Live Demo
 
-[**Check out the Live Website**](TaskFlow) (https://taskflow-ih.vercel.app/)
+[**Check out the Live Website**](https://taskflow-ih.vercel.app/)
 
----
+--- 
 
 ## ✨ Key Features
 
@@ -26,9 +26,15 @@
 *   **Wallet System**: Purchase coins to fund your tasks.
 
 ### 🛡️ For Admins
-*   **User Management**: Manage all users and change roles.
+*   **User Management**: Manage all users, change roles, and handle user deletions.
 *   **Task Oversight**: Monitor all posted tasks and submissions.
+*   **Blog Management**: Create, edit, and delete blog posts for the platform.
 *   **System Controls**: Manage platform settings and withdrawals processing.
+
+### 📰 Content & Compliance
+*   **Blog System**: Integrated blog for company news and updates.
+*   **Legal Compliance**: Dedicated pages for Privacy Policy, Terms, and Data Deletion instructions.
+*   **Secure Contact**: Contact form with email integration.
 
 ---
 
@@ -39,10 +45,11 @@
 | Category | Technology |
 | :--- | :--- |
 | **Frontend** | [Next.js 16](https://nextjs.org/) (React), [TailwindCSS](https://tailwindcss.com/) |
-| **Backend** | Next.js API Routes (Serverless) |
+| **UI Components** | [Radix UI](https://www.radix-ui.com/), [Shadcn/UI](https://ui.shadcn.com/) |
+| **Backend** | Next.js API Routes (Serverless), [GraphQL](https://graphql.org/) (Apollo Server) |
 | **Database** | [MongoDB](https://www.mongodb.com/) (Mongoose ODM) |
 | **Auth** | [Firebase Authentication](https://firebase.google.com/) |
-| **State Mgmt** | [TanStack Query](https://tanstack.com/query/latest) (React Query) |
+| **State Mgmt** | [TanStack Query](https://tanstack.com/query/latest), [Apollo Client](https://www.apollographql.com/docs/react/), Redux |
 | **Animations** | [Framer Motion](https://www.framer.com/motion/) |
 | **Icons** | [Lucide React](https://lucide.dev/) |
 
@@ -62,7 +69,7 @@ Follow these steps to set up the project locally.
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/your-username/task-flow.git
+    git clone https://github.com/Injamhossan/task-flow.git
     cd task-flow
     ```
 
@@ -77,7 +84,7 @@ Follow these steps to set up the project locally.
     Create a `.env.local` file in the root directory and add the following:
     ```env
     # Database
-    MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/taskflow
+    MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/taskflow
 
     # Firebase Auth
     NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
@@ -86,6 +93,10 @@ Follow these steps to set up the project locally.
     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
     NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+    
+    # Email Service (New)
+    EMAIL_USER=your_email@gmail.com
+    EMAIL_PASS=your_app_password
     
     # Stripe (Optional)
     STRIPE_SECRET_KEY=your_stripe_secret
@@ -106,14 +117,16 @@ Follow these steps to set up the project locally.
 ```bash
 src/
 ├── app/                # Next.js App Router pages & API routes
-│   ├── api/            # Backend API endpoints
+│   ├── api/            # Backend API endpoints (Blogs, Users, Admin, Contact)
+│   ├── blog/           # Public blog pages
 │   ├── dashboard/      # Protected dashboard routes (Admin/Buyer/Worker)
 │   └── page.jsx        # Landing page
 ├── components/         # Reusable React components
 │   ├── Dashboard/      # Role-specific dashboard widgets
-│   └── ui/             # Generic UI elements (Buttons, Tables)
+│   ├── ui/             # Shadcn/UI & Radix components
+│   └── ...
 ├── lib/                # Utilities & Database connection
-├── models/             # Mongoose Database Schemas
+├── models/             # Mongoose Database Schemas (User, Task, Blog, etc.)
 └── auth/               # Firebase configuration
 ```
 

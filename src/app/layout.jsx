@@ -3,8 +3,7 @@ import "@/style/globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import Providers from "@/components/Providers";
 import SmoothScroll from "@/components/SmoothScroll";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import LayoutWrapper from "@/components/LayoutWrapper";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -34,11 +33,9 @@ export default function RootLayout({ children }) {
         <Providers>
           <AuthProvider>
             <SmoothScroll />
-            <Navbar />
-            <div className="pt-20 min-h-screen">
+            <LayoutWrapper>
               {children}
-            </div>
-            <Footer />
+            </LayoutWrapper>
           </AuthProvider>
         </Providers>
       </body>
