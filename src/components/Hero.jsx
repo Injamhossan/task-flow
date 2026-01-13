@@ -3,6 +3,8 @@
 import { Play, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
+import Link from "next/link";
+
 export default function Hero() {
   return (
     <section className="relative flex flex-col items-center justify-between min-h-screen pt-32 overflow-hidden bg-secondary">
@@ -65,10 +67,10 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="flex flex-col gap-4 mt-10 sm:flex-row"
         >
-          <button className="flex items-center gap-2 px-8 py-4 text-[16px] md:text-[18px] font-inter font-bold tracking-widest text-black uppercase bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] rounded-sm">
+          <Link href="/register" className="flex items-center gap-2 px-8 py-4 text-[16px] md:text-[18px] font-inter font-bold tracking-widest text-black uppercase bg-primary hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] rounded-sm">
             Start Earning Now
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
           
           <button className="flex items-center gap-2 px-8 py-4 text-[16px] md:text-[18px] font-inter font-[600] tracking-widest text-white uppercase border border-zinc-800 rounded hover:bg-white hover:text-black hover:border-primary transition-all group">
             <Play className="w-3 h-3 fill-white group-hover:scale-110 transition-transform" />

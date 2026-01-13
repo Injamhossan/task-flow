@@ -7,11 +7,13 @@ import { useRouter } from "next/navigation";
 import { MoveLeft, Zap, Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { Flex, Text, Checkbox } from "@radix-ui/themes";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
@@ -143,6 +145,11 @@ export default function RegisterPage() {
     setError("");
 
     // Basic Validation
+    if (!termsAccepted) {
+        setError("Please agree to the terms and conditions.");
+        setIsLoading(false);
+        return;
+    }
     if (formData.password.length < 6) {
         setError("Password must be at least 6 characters long.");
         setIsLoading(false);
@@ -457,12 +464,25 @@ export default function RegisterPage() {
                 </div>
              </div>
 
-             {/* Error Message */}
              {error && (
                 <div className="p-4 bg-red-500/10 border border-red-500/50 text-red-500 text-sm rounded-sm flex items-center gap-2 mb-4">
                    <span className="font-bold">Error:</span> {error}
                 </div>
              )}
+
+             <div className="py-2">
+                <Text as="label" size="2">
+                    <Flex gap="2" align="center">
+                        <Checkbox 
+                            checked={termsAccepted}
+                            onCheckedChange={setTermsAccepted} 
+                        />
+                        <span className="text-zinc-400 select-none cursor-pointer" onClick={() => setTermsAccepted(!termsAccepted)}>
+                            Agree to Terms and Conditions
+                        </span>
+                    </Flex>
+                </Text>
+             </div>
 
              <div className="pt-2">
                 <button 
@@ -490,10 +510,6 @@ export default function RegisterPage() {
           >
             Already have an account? <Link href="/login" className="text-white font-bold hover:text-primary transition-colors">Log in</Link>
           </motion.p>
-        </div>
-        
-        <div className="text-zinc-600 text-xs font-medium text-center md:text-left">
-           © 2026 TaskFlow. All rights reserved.
         </div>
       </div>
 

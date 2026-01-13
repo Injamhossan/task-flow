@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { Users, ClipboardList, ShieldAlert, DollarSign, Trash2, Loader2, Coins } from "lucide-react";
 import Link from "next/link";
 
+import UserAvatar from "@/components/UserAvatar";
+
 export default function AdminDashboard({ user }) {
   const [data, setData] = useState({
     totalUsers: 0,
@@ -30,6 +32,25 @@ export default function AdminDashboard({ user }) {
     };
     fetchStats();
   }, []);
+
+  async function handleDeleteUser(userId) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const res = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setData(prev => ({
+          ...prev,
+          recentUsers: prev.recentUsers.filter(u => u._id !== userId),
+          totalUsers: prev.totalUsers - 1 // simplistic update
+        }));
+      } else {
+        alert("Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Delete failed", error);
+    }
+  }
 
   const stats = [
     { title: "Total Users", value: data.totalUsers, icon: Users, color: "bg-blue-500/10 text-blue-500" },
@@ -103,9 +124,12 @@ export default function AdminDashboard({ user }) {
               {data.recentUsers.map((u, i) => (
                 <tr key={u._id || i} className="hover:bg-zinc-800/50 transition-colors">
                   <td className="px-6 py-4">
-                    <div>
-                      <div className="font-bold text-white">{u.name}</div>
-                      <div className="text-sm text-zinc-500">{u.email}</div>
+                    <div className="flex items-center gap-3">
+                      <UserAvatar src={u.photoURL} name={u.name} className="w-10 h-10" />
+                      <div>
+                        <div className="font-bold text-white">{u.name}</div>
+                        <div className="text-sm text-zinc-500">{u.email}</div>
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -124,7 +148,11 @@ export default function AdminDashboard({ user }) {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-2 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded transition-colors" title="Delete User">
+                    <button 
+                        onClick={() => handleDeleteUser(u._id)}
+                        className="p-2 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 rounded transition-colors" 
+                        title="Delete User"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </td>

@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-9999 bg-black flex items-center justify-center">
       <div className="relative">
         {/* Abstract Glow */}
         <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />

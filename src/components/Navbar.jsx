@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import Logo from "@/assets/Logo.png";
 
-import { Zap, Coins, User as UserIcon, LayoutDashboard, LogOut, Code2, Bell, BadgeCheck, Menu, X } from "lucide-react";
+import { Coins, User as UserIcon, LayoutDashboard, LogOut, Code2, Bell, BadgeCheck, Menu, X } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
@@ -65,8 +67,8 @@ export default function Navbar() {
           </button>
           
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex items-center justify-center w-10 h-10 rounded-sm bg-primary text-black transition-transform group-hover:scale-105">
-              <Zap className="w-6 h-6 fill-current" />
+            <div className="relative w-10 h-10 transition-transform group-hover:scale-105">
+              <Image src={Logo} alt="TaskFlow" fill className="object-contain" />
             </div>
             <span className="text-xl font-bold tracking-wide text-white font-primary hidden sm:block">TASKFLOW</span>
           </Link>

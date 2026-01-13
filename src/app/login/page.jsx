@@ -341,10 +341,6 @@ export default function LoginPage() {
             Don't have an account? <Link href="/register" className="text-white font-bold hover:text-primary transition-colors">Sign up</Link>
           </motion.p>
         </div>
-        
-        <div className="text-zinc-600 text-xs font-medium text-center md:text-left">
-           © 2026 TaskFlow. All rights reserved.
-        </div>
       </div>
 
       {/* Right Side - Visual */}

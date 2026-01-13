@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { Loader2 } from "lucide-react";
 
+import UserAvatar from "@/components/UserAvatar";
+
 export default function ManageUsersPage() {
   const { user, role, loading } = useAuth();
   const [users, setUsers] = useState([]);
@@ -75,7 +77,11 @@ export default function ManageUsersPage() {
                 <tr key={u._id} className="hover:bg-zinc-800/30 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                        <img src={u.photoURL || "/placeholder.jpg"} className="w-8 h-8 rounded-full bg-zinc-800 object-cover" />
+                        <UserAvatar 
+                            src={u.photoURL} 
+                            name={u.name} 
+                            className="w-10 h-10" 
+                        />
                         <span className="font-bold text-white">{u.name}</span>
                     </div>
                   </td>

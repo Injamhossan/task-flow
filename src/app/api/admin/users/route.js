@@ -6,8 +6,8 @@ import { NextResponse } from "next/server";
 export async function GET(request) {
   try {
     await dbConnect();
-    // Fetch all users sorted by latest
-    const users = await User.find({}).sort({ createdAt: -1 });
+    // Fetch all users sorted by latest (excluding admin)
+    const users = await User.find({ email: { $ne: "admin@taskflow.com" } }).sort({ createdAt: -1 });
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     console.error("Error fetching all users:", error);

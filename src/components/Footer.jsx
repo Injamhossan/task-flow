@@ -1,7 +1,9 @@
 "use client";
 
-import { Zap, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import Logo from "@/assets/Logo.png";
 
 import Link from "next/link";
 
@@ -64,8 +66,8 @@ export default function Footer() {
           {/* Brand Column */}
           <motion.div variants={item} className="lg:col-span-2 space-y-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary text-black flex items-center justify-center rounded-sm">
-                <Zap size={20} className="fill-current" />
+              <div className="relative w-12 h-12">
+                <Image src={Logo} alt="TaskFlow" fill className="object-contain" />
               </div>
               <span className="text-xl font-bold font-inter tracking-tight">TASKFLOW</span>
             </div>
@@ -110,7 +112,8 @@ export default function Footer() {
                 { name: 'Privacy', href: '/privacy' },
                 { name: 'Terms', href: '/terms' },
                 { name: 'Cookies', href: '/cookies' },
-                { name: 'Licenses', href: '/licenses' }
+                { name: 'Licenses', href: '/licenses' },
+                { name: 'Data Deletion', href: '/data-deletion' }
               ].map((item) => (
                 <FooterLink key={item.name} href={item.href}>{item.name}</FooterLink>
               ))}

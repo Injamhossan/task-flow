@@ -8,16 +8,16 @@ export async function GET(request) {
   try {
     await dbConnect();
     
-    // Fetch counts
-    const totalUsers = await User.countDocuments();
+    // Fetch counts (excluding admin)
+    const totalUsers = await User.countDocuments({ email: { $ne: "admin@taskflow.com" } });
     const totalTasks = await Task.countDocuments();
     
-    // Calculate total coins in system
-    const users = await User.find({}, 'coin');
+    // Calculate total coins in system (excluding admin)
+    const users = await User.find({ email: { $ne: "admin@taskflow.com" } }, 'coin');
     const totalCoins = users.reduce((acc, curr) => acc + (curr.coin || 0), 0);
     
-    // Fetch recent users (limit 5)
-    const recentUsers = await User.find({})
+    // Fetch recent users (limit 5, excluding admin)
+    const recentUsers = await User.find({ email: { $ne: "admin@taskflow.com" } })
       .sort({ createdAt: -1 })
       .limit(5);
 

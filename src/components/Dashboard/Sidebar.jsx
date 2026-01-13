@@ -55,6 +55,7 @@ export default function Sidebar() {
     { name: "Home", href: "/dashboard", icon: Home },
     { name: "Manage Users", href: "/dashboard/users", icon: Users },
     { name: "Manage Task", href: "/dashboard/admin-tasks", icon: ClipboardList },
+    { name: "Manage Blogs", href: "/dashboard/manage-blogs", icon: FileText },
     { name: "Profile", href: "/dashboard/profile", icon: Users },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
