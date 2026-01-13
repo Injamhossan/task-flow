@@ -19,7 +19,8 @@ import {
   PlusCircle,
   ClipboardList,
   Coins,
-  History
+  History,
+  BadgeCheck
 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { signOut } from "firebase/auth";
@@ -136,8 +137,9 @@ export default function Sidebar() {
               )}
            </div>
            <div className="overflow-hidden">
-             <p className="text-sm font-medium truncate">
+             <p className="text-sm font-medium truncate flex items-center gap-1">
                {user?.email === "admin@taskflow.com" ? "Admin" : (userData?.name || user?.displayName || "User")}
+               {userData?.verified && <BadgeCheck size={14} className="text-blue-500 fill-blue-500/10" />}
              </p>
              <p className="text-xs text-zinc-500 truncate">{user?.email}</p>
            </div>
