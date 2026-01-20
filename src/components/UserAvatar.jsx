@@ -7,10 +7,6 @@ import { User } from "lucide-react";
 export default function UserAvatar({ src, name, size = 10, className = "" }) {
   const [error, setError] = useState(false);
 
-  // Parse size to pixels (tailwind classes usually w-8 is 2rem = 32px, w-10 is 40px)
-  // We'll just rely on className validation or passed size if needed, but for now 
-  // let's simplify and just use the className for dimensions.
-  
   if (!src || error) {
     return (
       <div 
