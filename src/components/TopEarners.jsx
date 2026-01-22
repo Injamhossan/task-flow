@@ -88,7 +88,7 @@ export default function TopEarners() {
           whileInView={{ opacity: 0.4, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
-          className="text-[15vw] md:text-[20vw] font-black font-inter text-zinc-900/40 tracking-tighter whitespace-nowrap"
+          className="text-[10vw] md:text-[13vw] font-black font-inter text-zinc-900/40 tracking-tighter whitespace-nowrap"
         >
           LEADERBOARD
         </motion.div>

@@ -2,12 +2,15 @@
 
 import { Play, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 import Link from "next/link";
 
 export default function Hero() {
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+
   return (
-    <section className="relative flex flex-col items-center justify-between min-h-screen pt-32 overflow-hidden bg-secondary">
+    <section className="relative flex flex-col items-center justify-between min-h-screen pt-20 overflow-hidden bg-secondary">
       {/* Magenta Orb Grid Background */}
       <div
         className="absolute inset-0 z-0"
@@ -72,8 +75,11 @@ export default function Hero() {
             <ArrowRight className="w-4 h-4" />
           </Link>
           
-          <button className="flex items-center gap-2 px-8 py-4 text-[16px] md:text-[18px] font-inter font-[600] tracking-widest text-white uppercase border border-zinc-800 rounded hover:bg-white hover:text-black hover:border-primary transition-all group">
-            <Play className="w-3 h-3 fill-white group-hover:scale-110 transition-transform" />
+          <button 
+            onClick={() => setIsDemoOpen(true)}
+            className="flex items-center gap-2 px-8 py-4 text-[16px] md:text-[18px] font-inter font-[600] tracking-widest text-white uppercase border border-zinc-800 rounded hover:bg-white hover:text-black hover:border-primary transition-all group"
+          >
+            <Play className="w-3 h-3 fill-white group-hover:fill-black group-hover:scale-110 transition-transform" />
             Watch Demo
           </button>
         </motion.div>
@@ -139,6 +145,35 @@ export default function Hero() {
       
       {/* Bottom fade */}
       <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none" />
+
+      {/* Video Modal */}
+      {isDemoOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setIsDemoOpen(false)}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="relative w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl border border-zinc-800"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setIsDemoOpen(false)}
+              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-primary text-white hover:text-black rounded-full transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 18 18"/></svg>
+            </button>
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src="https://www.youtube.com/embed/7qBJmbsioCA?autoplay=1" 
+              title="Demo Video"
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+            ></iframe>
+          </motion.div>
+        </div>
+      )}
     </section>
   );
 }
