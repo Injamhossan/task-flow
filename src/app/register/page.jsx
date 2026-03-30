@@ -8,6 +8,14 @@ import { MoveLeft, Zap, Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } fro
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flex, Text, Checkbox } from "@radix-ui/themes";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters long."),
+  role: z.enum(["worker", "buyer"]),
+});
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -144,14 +152,25 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError("");
 
-    // Basic Validation
-    if (!termsAccepted) {
-        setError("Please agree to the terms and conditions.");
+    // Zod Validation First
+    try {
+      registerSchema.parse({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
         setIsLoading(false);
         return;
+      }
     }
-    if (formData.password.length < 6) {
-        setError("Password must be at least 6 characters long.");
+
+    // Terms Validation
+    if (!termsAccepted) {
+        setError("Please agree to the terms and conditions.");
         setIsLoading(false);
         return;
     }

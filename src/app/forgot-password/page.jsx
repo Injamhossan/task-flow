@@ -6,6 +6,11 @@ import { auth } from "@/auth/firebase.config";
 import { MoveLeft, Zap, Mail, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { z } from "zod";
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+});
 
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,10 +24,14 @@ export default function ForgotPasswordPage() {
     setError("");
     setMessage("");
 
-    if (!email) {
-      setError("Please enter your email address.");
-      setIsLoading(false);
-      return;
+    try {
+      forgotPasswordSchema.parse({ email });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+        setIsLoading(false);
+        return;
+      }
     }
 
     try {

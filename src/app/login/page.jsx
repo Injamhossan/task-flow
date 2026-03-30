@@ -7,6 +7,12 @@ import { useRouter } from "next/navigation";
 import { MoveLeft, Zap, Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(1, "Password is required."),
+});
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -116,6 +122,16 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+
+    try {
+      loginSchema.parse({ email, password });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+        setIsLoading(false);
+        return;
+      }
+    }
     
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
