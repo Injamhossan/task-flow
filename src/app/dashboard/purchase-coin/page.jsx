@@ -1,12 +1,12 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { Loader2, Check, CreditCard, Lock } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Loader2, Check, CreditCard, Lock, ArrowRight } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useQueryClient } from "@tanstack/react-query";
@@ -80,46 +80,54 @@ function CheckoutForm({ selectedPackage, clientSecret, onSuccess, onProcessing }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      <PaymentElement />
-      {message && <div className="text-red-500 text-sm font-bold">{message}</div>}
-      <Button type="submit" className="w-full font-bold" disabled={isProcessing || !stripe || !elements}>
-        {isProcessing ? <Loader2 className="animate-spin mr-2" /> : `Pay $${selectedPackage?.price || 0}`}
-      </Button>
-       <p className="text-xs text-center text-zinc-500 flex items-center justify-center gap-1">
-            <Lock size={12} />
-            Secured by Stripe
-        </p>
-    </form>
+    <div className="space-y-4 py-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <PaymentElement />
+        {message && <div className="text-red-500 text-sm font-bold">{message}</div>}
+        <Button type="submit" className="w-full font-bold bg-primary text-black hover:bg-white" disabled={isProcessing || !stripe || !elements}>
+          {isProcessing ? <Loader2 className="animate-spin mr-2" /> : `Pay $${selectedPackage?.price || 0} with Stripe`}
+        </Button>
+      </form>
+
+      <p className="text-xs text-center text-zinc-500 flex items-center justify-center gap-1 mt-4">
+          <Lock size={12} />
+          Secured by Stripe
+      </p>
+    </div>
   );
 }
 
-export default function PurchaseCoinPage() {
+function PurchaseCoinContent() {
   const { user, role, loading, refetchUser } = useAuth(); // Get refetchUser
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [paymentStep, setPaymentStep] = useState('select-region'); 
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const packages = [
     { coins: 10, price: 1, label: "Starter" },
-    { coins: 150, price: 10, label: "Popular" },
-    { coins: 500, price: 20, label: "Pro" },
-    { coins: 1000, price: 35, label: "Enterprise" },
+    { coins: 150, price: 5, label: "Popular" },
+    { coins: 500, price: 10, label: "Pro" },
+    { coins: 1000, price: 20, label: "Enterprise" },
   ];
 
   const handlePackageClick = (pkg) => {
-     // ... same as before
      setSelectedPackage(pkg);
      setIsSuccess(false);
      setClientSecret(""); 
-     
+     setPaymentStep('select-region');
+  };
+
+  const initStripe = () => {
+     if (!selectedPackage) return;
+     setPaymentStep('stripe');
      fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ price: pkg.price }),
+        body: JSON.stringify({ price: selectedPackage?.price }),
       })
       .then((res) => res.json())
       .then((data) => {
@@ -130,6 +138,32 @@ export default function PurchaseCoinPage() {
           }
       })
       .catch(err => console.error(err));
+  };
+
+  const handleSSLCommerz = async () => {
+    if (!selectedPackage) return;
+    setIsProcessing(true);
+    try {
+      const res = await fetch("/api/ssl/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_email: user.email,
+          amount: selectedPackage?.price * 110, // Assuming 1 USD = 110 BDT approx
+          coins: selectedPackage?.coins
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Could not initiate SSLCommerz payment.");
+        setIsProcessing(false);
+      }
+    } catch (err) {
+      alert("System error.");
+      setIsProcessing(false);
+    }
   };
 
   const handleSuccess = () => {
@@ -145,6 +179,26 @@ export default function PurchaseCoinPage() {
         // router.refresh(); // No longer needed as we use React Query state
      }, 3000);
   };
+
+  const searchParams = useSearchParams();
+  const statusParam = searchParams.get('status');
+
+  useEffect(() => {
+    if (statusParam === 'success') {
+       refetchUser();
+       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+       setIsSuccess(true);
+       setSelectedPackage({ coins: 'Your', price: 'payment' }); // dummy to keep modal open
+       setTimeout(() => {
+           setSelectedPackage(null);
+           setIsSuccess(false);
+           router.replace('/dashboard/purchase-coin');
+       }, 3000);
+    } else if (statusParam === 'fail' || statusParam === 'cancel') {
+       alert("Payment was " + statusParam);
+       router.replace('/dashboard/purchase-coin');
+    }
+  }, [statusParam, refetchUser, queryClient, router]);
 
   if (loading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" /></div>;
 
@@ -197,7 +251,7 @@ export default function PurchaseCoinPage() {
         ))}
       </div>
 
-      {/* Payment Modal */}
+       {/* Payment Modal */}
       <Dialog open={!!selectedPackage} onOpenChange={(open) => !isProcessing && !isSuccess && setSelectedPackage(open ? selectedPackage : null)}>
          <DialogContent className="sm:max-w-md bg-zinc-900 border border-zinc-800">
              {!isSuccess ? (
@@ -209,19 +263,55 @@ export default function PurchaseCoinPage() {
                         </DialogDescription>
                     </DialogHeader>
                     
-                    {clientSecret ? (
-                        <Elements stripe={stripePromise} options={{ clientSecret, theme: 'night', appearance: { theme: 'night', labels: 'floating' } }}>
-                            <CheckoutForm 
-                                selectedPackage={selectedPackage} 
-                                clientSecret={clientSecret} 
-                                onSuccess={handleSuccess}
-                                onProcessing={setIsProcessing}
-                            />
-                        </Elements>
-                    ) : (
-                        <div className="flex justify-center py-10">
-                            <Loader2 className="animate-spin text-primary" />
+                    {paymentStep === 'select-region' && (
+                        <div className="space-y-4 py-4">
+                            <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest text-center mb-6">Select your region</h3>
+                            
+                            <div className="grid grid-cols-1 gap-4">
+                                <button 
+                                  onClick={handleSSLCommerz}
+                                  disabled={isProcessing}
+                                  className="w-full flex items-center gap-4 p-4 border border-zinc-800 bg-zinc-950 rounded-xl hover:border-primary/50 hover:bg-zinc-800 transition-all text-left group disabled:opacity-50"
+                                >
+                                    <div className="text-3xl">🇧🇩</div>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-white group-hover:text-primary transition-colors">Bangladesh</div>
+                                        <div className="text-xs text-zinc-500">Pay in BDT with bKash, Nagad, Rocket or Cards</div>
+                                    </div>
+                                    {isProcessing && <Loader2 className="animate-spin text-zinc-500" size={20} />}
+                                </button>
+
+                                <button 
+                                  onClick={initStripe}
+                                  disabled={isProcessing}
+                                  className="w-full flex items-center gap-4 p-4 border border-zinc-800 bg-zinc-950 rounded-xl hover:border-blue-500/50 hover:bg-zinc-800 transition-all text-left group disabled:opacity-50"
+                                >
+                                    <div className="text-3xl">🌍</div>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-white group-hover:text-blue-400 transition-colors">International</div>
+                                        <div className="text-xs text-zinc-500">Pay in USD with secure Stripe checkout</div>
+                                    </div>
+                                    <ArrowRight className="text-zinc-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" size={20} />
+                                </button>
+                            </div>
                         </div>
+                    )}
+
+                    {paymentStep === 'stripe' && (
+                        clientSecret ? (
+                            <Elements stripe={stripePromise} options={{ clientSecret, theme: 'night', appearance: { theme: 'night', labels: 'floating' } }}>
+                                <CheckoutForm 
+                                    selectedPackage={selectedPackage} 
+                                    clientSecret={clientSecret} 
+                                    onSuccess={handleSuccess}
+                                    onProcessing={setIsProcessing}
+                                />
+                            </Elements>
+                        ) : (
+                            <div className="flex justify-center py-10">
+                                <Loader2 className="animate-spin text-primary" />
+                            </div>
+                        )
                     )}
                  </>
              ) : (
@@ -229,14 +319,24 @@ export default function PurchaseCoinPage() {
                      <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-black mb-2">
                          <Check size={32} strokeWidth={4} />
                      </div>
-                     <h2 className="text-2xl font-bold text-white">Payment Successful!</h2>
-                     <p className="text-zinc-400">
-                         {selectedPackage?.coins} coins have been added to your account.
-                     </p>
+                     <DialogHeader className="flex flex-col items-center text-center">
+                         <DialogTitle className="text-2xl font-bold text-white">Payment Successful!</DialogTitle>
+                         <DialogDescription className="text-zinc-400">
+                           {selectedPackage?.coins} coins have been added to your account.
+                         </DialogDescription>
+                     </DialogHeader>
                  </div>
              )}
          </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function PurchaseCoinPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" /></div>}>
+      <PurchaseCoinContent />
+    </Suspense>
   );
 }

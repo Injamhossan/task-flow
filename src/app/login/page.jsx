@@ -141,7 +141,7 @@ export default function LoginPage() {
       
       router.push("/dashboard");
     } catch (err) {
-      console.error("Login Error:", err);
+      // console.error("Login Error:", err);
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
         setError("Invalid email or password.");
       } else {

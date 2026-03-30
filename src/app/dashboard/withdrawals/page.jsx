@@ -13,6 +13,13 @@ export default function WithdrawalsPage() {
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const paymentMethods = [
+    { id: "Bkash", name: "bKash", color: "text-pink-500", bgColor: "bg-pink-500/10", borderColor: "border-pink-500/30" },
+    { id: "Nagad", name: "Nagad", color: "text-orange-500", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30" },
+    { id: "Rocket", name: "Rocket", color: "text-purple-500", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30" },
+    { id: "Bank", name: "Bank Transfer", color: "text-blue-500", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30" }
+  ];
+
   if (loading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" size={32}/></div>;
 
   if (role !== "worker") {
@@ -166,17 +173,26 @@ export default function WithdrawalsPage() {
                       </div>
                   </div>
 
-                  <div className="space-y-2">
-                     <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Payment System</label>
-                     <select 
-                       value={paymentMethod}
-                       onChange={(e) => setPaymentMethod(e.target.value)}
-                       className="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-3 text-white focus:border-primary focus:outline-none appearance-none"
-                     >
-                       <option value="Bkash">Bkash</option>
-                       <option value="Rocket">Rocket</option>
-                       <option value="Nagad">Nagad</option>
-                     </select>
+                  <div className="space-y-4">
+                     <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Select Payment System</label>
+                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        {paymentMethods.map((method) => (
+                          <div 
+                            key={method.id}
+                            onClick={() => setPaymentMethod(method.id)}
+                            className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center justify-center gap-2 transition-all duration-300 ${
+                              paymentMethod === method.id 
+                                ? `${method.bgColor} ${method.borderColor} ring-1 ring-${method.color.split('-')[1]}-500 pb-5 pt-3` 
+                                : `bg-zinc-950/50 border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900`
+                            }`}
+                          >
+                            <div className={`w-3 h-3 rounded-full mb-1 transition-all ${paymentMethod === method.id ? 'bg-current opacity-100 scale-125 ' + method.color : 'bg-zinc-700 opacity-50'}`} />
+                            <span className={`font-bold text-sm ${paymentMethod === method.id ? "text-white" : "text-zinc-400"}`}>
+                               {method.name}
+                            </span>
+                          </div>
+                        ))}
+                     </div>
                   </div>
 
                   <div className="space-y-2">
@@ -185,8 +201,8 @@ export default function WithdrawalsPage() {
                        type="text" 
                        value={accountNumber}
                        onChange={(e) => setAccountNumber(e.target.value)}
-                       className="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-3 text-white focus:border-primary focus:outline-none"
-                       placeholder="e.g. 017xxxxxxxx"
+                       className="w-full bg-zinc-950 border border-zinc-800 rounded px-4 py-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
+                       placeholder={paymentMethod === "Bank" ? "e.g. Bank Account Number" : "e.g. 017xxxxxxxx"}
                        required
                      />
                   </div>

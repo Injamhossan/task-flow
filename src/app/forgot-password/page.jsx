@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
       setMessage("Password reset link sent! Check your email inbox.");
       setEmail("");
     } catch (err) {
-      console.error("Reset Password Error:", err);
+      // console.error("Reset Password Error:", err);
       if (err.code === 'auth/user-not-found') {
         setError("No account found with this email.");
       } else if (err.code === 'auth/invalid-email') {

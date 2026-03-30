@@ -4,6 +4,8 @@ import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Logo from "@/assets/Logo.png";
+import ssl from "@/assets/ssl.png";
+import stripe from "@/assets/stripe.png";
 
 import Link from "next/link";
 
@@ -74,6 +76,17 @@ export default function Footer() {
             <p className="text-zinc-500 text-sm leading-relaxed max-w-xs font-medium">
               The future of micro-work. Complete tasks. Earn rewards. Build reputation. Join the movement.
             </p>
+            <div className="pt-4 space-y-3">
+               <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Supported Payments</span>
+               <div className="flex items-center gap-4 mt-2">
+                  <div className="relative h-14 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <Image src={ssl} alt="SSLCommerz" className="object-contain h-full w-auto" />
+                  </div>
+                  <div className="relative h-14 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <Image src={stripe} alt="Stripe" className="object-contain h-full w-auto" />
+                  </div>
+               </div>
+            </div>
           </motion.div>
 
           {/* Links Columns */}

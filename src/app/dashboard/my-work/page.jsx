@@ -46,16 +46,16 @@ export default function MyWorkPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-zinc-800 pb-1">
-        {["all", "pending", "approved", "rejected"].map((tab) => (
+        {[{id:"all", label:"All"}, {id:"pending", label:"Pending"}, {id:"approved", label:"Delivered"}, {id:"rejected", label:"Rejected"}].map((tab) => (
           <button
-            key={tab}
-            onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
+            key={tab.id}
+            onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
             className={`px-4 py-2 text-sm font-medium capitalize relative ${
-              activeTab === tab ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+              activeTab === tab.id ? "text-white" : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            {tab}
-            {activeTab === tab && (
+            {tab.label}
+            {activeTab === tab.id && (
               <motion.div 
                 layoutId="activeTab"
                 className="absolute bottom-[-5px] left-0 right-0 h-0.5 bg-primary"
@@ -99,7 +99,7 @@ export default function MyWorkPage() {
                         {sub.status === 'approved' && <CheckCircle size={12} />}
                         {sub.status === 'pending' && <Clock size={12} />}
                         {sub.status === 'rejected' && <XCircle size={12} />}
-                        {sub.status}
+                        {sub.status === 'approved' ? 'delivered' : sub.status}
                       </span>
                     </td>
                   </tr>
@@ -131,7 +131,7 @@ export default function MyWorkPage() {
                   {sub.status === 'approved' && <CheckCircle size={12} />}
                   {sub.status === 'pending' && <Clock size={12} />}
                   {sub.status === 'rejected' && <XCircle size={12} />}
-                  {sub.status}
+                  {sub.status === 'approved' ? 'delivered' : sub.status}
                 </span>
               </div>
               

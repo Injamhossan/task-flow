@@ -203,7 +203,7 @@ export default function RegisterPage() {
 
       router.push("/dashboard");
     } catch (error) {
-      console.error("Registration Error:", error);
+      // console.error("Registration Error:", error);
       if (error.code === 'auth/email-already-in-use') {
           setError("This email is already registered. Please login.");
       } else if (error.code === 'auth/weak-password') {
