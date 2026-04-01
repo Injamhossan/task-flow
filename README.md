@@ -2,7 +2,7 @@
 
 ![TaskFlow Banner](https://i.ibb.co/6cFYTYBN/image.png)
 
-**TaskFlow** is a modern, full-stack micro-tasking platform that connects businesses ("Buyers") with a global workforce ("Workers"). Buyers post simple tasks, and Workers earn real money by completing them. The platform features role-based dashboards, secure payments, and a real-time leaderboard system.
+**TaskFlow** is a modern, full-stack micro-tasking platform that connects businesses ("Buyers") with a global workforce ("Workers"). Buyers post simple tasks, and Workers earn real money by completing them. The platform features role-based dashboards, secure dual-gateway payments (Stripe & SSLCommerz), professional PDF invoicing, and a real-time leaderboard system.
 
 ---
 
@@ -23,7 +23,8 @@
 ### 💼 For Buyers
 *   **Post Tasks**: Create tasks with specific requirements and download limits.
 *   **Manage Submissions**: Review worker submissions and Approve or Reject task proofs.
-*   **Wallet System**: Purchase coins to fund your tasks.
+*   **Wallet System**: Purchase coins to fund your tasks via Stripe (International) or SSLCommerz (Bangladesh).
+*   **Payment History**: Track previous purchases and download professional PDF invoices for transactions.
 
 ### 🛡️ For Admins
 *   **User Management**: Manage all users, change roles, and handle user deletions.
@@ -45,12 +46,15 @@
 | Category | Technology |
 | :--- | :--- |
 | **Frontend** | [Next.js 16](https://nextjs.org/) (React), [TailwindCSS](https://tailwindcss.com/) |
-| **UI Components** | [Radix UI](https://www.radix-ui.com/), [Shadcn/UI](https://ui.shadcn.com/) |
+| **UI Components** | [Radix UI](https://www.radix-ui.com/), [Shadcn/UI](https://ui.shadcn.com/), Glassmorphism UI |
 | **Backend** | Next.js API Routes (Serverless), [GraphQL](https://graphql.org/) (Apollo Server) |
 | **Database** | [MongoDB](https://www.mongodb.com/) (Mongoose ODM) |
-| **Auth** | [Firebase Authentication](https://firebase.google.com/) |
+| **Auth** | [NextAuth.js](https://next-auth.js.org/), [Firebase Authentication](https://firebase.google.com/) |
 | **State Mgmt** | [TanStack Query](https://tanstack.com/query/latest), [Apollo Client](https://www.apollographql.com/docs/react/), Redux |
-| **Animations** | [Framer Motion](https://www.framer.com/motion/) |
+| **Animations** | [GSAP](https://gsap.com/), [Framer Motion](https://www.framer.com/motion/) |
+| **Validation** | [Zod](https://zod.dev/) |
+| **Payments** | [Stripe](https://stripe.com/), [SSLCommerz](https://sslcommerz.com/) |
+| **PDF Generation** | [jsPDF](https://github.com/parallax/jsPDF) |
 | **Icons** | [Lucide React](https://lucide.dev/) |
 
 ---
@@ -81,10 +85,11 @@ Follow these steps to set up the project locally.
     ```
 
 3.  **Set up Environment Variables**
-    Create a `.env.local` file in the root directory and add the following:
+    Create a `.env` file in the root directory and add the following:
     ```env
-    # Database
-    MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/taskflow
+    MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/<app>
+    NEXTAUTH_URL=http://localhost:3000
+    NEXTAUTH_SECRET=your_nextauth_secret
 
     # Firebase Auth
     NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
@@ -94,12 +99,19 @@ Follow these steps to set up the project locally.
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
     NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
     
-    # Email Service (New)
-    EMAIL_USER=your_email@gmail.com
-    EMAIL_PASS=your_app_password
-    
-    # Stripe (Optional)
+    # Payment Gateways
     STRIPE_SECRET_KEY=your_stripe_secret
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+    SSLCOMMERZ_STORE_ID=your_store_id
+    SSLCOMMERZ_STORE_PASSWORD=your_store_password@ssl
+    NEXT_PUBLIC_APP_URL=http://localhost:3000
+    
+    # Email Config
+    EMAIL_SERVER_HOST=smtp.gmail.com
+    EMAIL_SERVER_PORT=465
+    EMAIL_SERVER_SECURE=true
+    EMAIL_SERVER_USER=your_email@gmail.com
+    EMAIL_SERVER_PASSWORD=your_app_password
     ```
 
 4.  **Run the development server**
